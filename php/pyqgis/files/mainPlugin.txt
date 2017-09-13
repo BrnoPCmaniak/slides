@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+import os
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from qgis.core import *
+
+import resources
+
+class Plugin:
+    def __init__(self, iface):
+        # This method is called on initialization of plugin ("The first method")
+        self._iface = iface
+        print "Initialiting My Plugin"
+
+    def initGui(self):
+        # This method is called when the plugin is loaded
+        print "Loading My Plugin"
+        # create action that will start plugin configuration
+        self.action = QAction( QIcon(":/plugins/myplugin/icon.png"),
+                               "My First Plugin Action",
+                               self._iface.mainWindow() )
+        self.action.setObjectName("testAction")
+        self.action.setWhatsThis("Configuration for My First Plugin")
+        self.action.setStatusTip("This is status tip")
+        QObject.connect(self.action, SIGNAL("triggered()"), self.run)
+
+        # add toolbar button and menu item
+        self._iface.addToolBarIcon(self.action)
+        self._iface.addPluginToMenu("&My Plugins", self.action)
+
+        # connect to signal renderComplete which is emitted when canvas
+        # rendering is done
+        QObject.connect( self._iface.mapCanvas(),
+                         SIGNAL("renderComplete(QPainter *)"),
+                         self.renderTest )
+
+    def unload(self):
+        # This method is called when the plugin is
+        print "Unloading My Plugin"
+        # remove the plugin menu item and icon
+        self._iface.removePluginMenu("&My plugins", self.action)
+        self._iface.removeToolBarIcon(self.action)
+
+        # disconnect form signal of the canvas
+        QObject.disconnect( self._iface.mapCanvas(),
+                            SIGNAL("renderComplete(QPainter *)"),
+                            self.renderTest )
+
+    def run(self):
+        # create and show a configuration dialog or something similar
+        print "My Plugin: run called!"
+
+    def renderTest(self, painter):
+        # use painter for drawing to map canvas
+        print "My Plugin: renderTest called!"

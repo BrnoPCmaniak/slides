@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Lecture 4 - Z3104 GEODATABÁZE</title>
+
+    <meta name="description" content="Z3104 Geodatabáze - materiály ">
+    <meta name="author" content="Pavel Grochal">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="/css/bootstrap.dark.min.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.min.css">
+    <link rel="stylesheet" href="/css/theme/darkless.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.custom.css">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="/lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h1>Lecture 4</h1>
+          <h3>Z3104 GEODATABÁZE</h3>
+        </section>
+
+        <section>
+          <h2>Obsah</h2>
+          <ul>
+            <li>Opakování</li>
+            <li>Trocha nové teorie</li>
+            <li>DIY - Do It Yourself</li>
+          </ul>
+        </section>
+
+        <section>
+          <section>
+            <h2>Opakování</h2>
+          </section>
+
+          <section>
+            <h3>Přejmenování tabulky</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    RENAME TO nove_jmeno_tabulky;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h3>Pojmenování Primárního klíče</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE lide (
+    jmeno TEXT CONSTRAINT jedinecne_jmeno PRIMARY KEY,
+    vek INT
+);
+            </code></pre></div>
+            <h3>Pojmenování integritního omezení CHECK</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE lide (
+    jmeno TEXT,
+    vek INT CONSTRAINT uz_asi_po_smrti
+      CHECK( VEK < 150)
+);
+            </code></pre></div>
+            <h3>Pojmenování integritního omezení UNIQUE</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE lide (
+    jmeno TEXT CONSTRAINT jedinecne_jmeno UNIQUE,
+    vek INT
+);
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h3>Přidání pojmenovaného PK</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    ADD CONSTRAINT jmeno_PK PRIMARY KEY (jmeno_sloupce);
+            </code></pre></div>
+            <h3>Přidání pojmenovaného omezení UNIQUE</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    ADD CONSTRAINT jmeno_omezeni UNIQUE (jmeno_sloupce);
+            </code></pre></div>
+            <h3>Přidání pojmenovaného omezení CHECK</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    ADD CONSTRAINT jmeno_omezeni CHECK (podmínka);
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h3>Odstranění pojmenovaného omezení</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    DROP CONSTRAINT jmeno_omezeni;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h3>Přidání omezení NOT NULL</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    ALTER COLUMN jmeno_sloupce SET NOT NULL;
+            </code></pre></div>
+            <h3>Odstranění omezení NOT NULL</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    ALTER COLUMN jmeno_sloupce DROP NOT NULL;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h3>Změna datového typu sloupce</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE nazev_tabulky
+    ALTER COLUMN nazev_sloupce TYPE novy_datovy_typ;
+            </code></pre></div>
+            <h3>Přejmenování sloupce</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE nazev_tabulky
+    RENAME COLUMN nazev_sloupce TO novy_nazev_sloupce;
+            </code></pre></div>
+            <h3>Odstranění sloupce</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE nazev_tabulky
+    DROP COLUMN nazev_sloupce;
+            </code></pre></div>
+          </section>
+
+        </section>
+
+        <section>
+
+          <section>
+            <h2>Trocha nové teorie</h2>
+          </section>
+
+          <section>
+            <h2>Řazení výsledků - ORDER BY</h2>
+            <p>můžeme řadit podle 1 nebo více sloupců</p>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT hodnoceni_csfd, nazev_filmu FROM filmy
+    ORDER BY hodnoceni_csfd DESC;
+            </code></pre></div>
+            <hr>
+            <p>vzestupně i sestupně</p>
+            <small>ASC (Ascending) &times; DESC (Descending)</small>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT rok_produkce, hodnoceni_csfd, nazev_filmu FROM filmy
+    ORDER BY rok_produkce ASC, hodnoceni_csfd DESC;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h3>
+              Za klíčovým slovem WHERE musí být výraz, který lze vyhodnotit na bool.
+            </h3>
+            <p>
+              tj. ANO / NE
+            </p>
+          </section>
+
+          <section>
+            <h2>WHERE - provnávací operátory</h2>
+            <table style='font-size:0.7em; width:50%; margin-right:auto; margin-left:auto;' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th>Operator</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td><tt class="LITERAL">&lt;</tt></td>
+                  <td>menší než</td>
+                </tr>
+                <tr>
+                  <td><tt class="LITERAL">&gt;</tt></td>
+                  <td>větší než</td>
+                </tr>
+                <tr>
+                  <td><tt class="LITERAL">&lt;=</tt></td>
+                  <td>menší nebo rovno</td>
+                </tr>
+                <tr>
+                  <td><tt class="LITERAL">&gt;=</tt></td>
+                  <td>větší nebo rovno</td>
+                </tr>
+                <tr>
+                  <td><tt class="LITERAL">=</tt></td>
+                  <td>rovno</td>
+                </tr>
+                <tr>
+                  <td><tt class="LITERAL">&lt;&gt;</tt> or <tt class="LITERAL">!=</tt></td>
+                  <td>nerovno (různé)</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT hodnoceni_csfd, nazev_filmu FROM filmy
+    WHERE reziser_prij = 'Hrebejk';
+            </code></pre></div>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT hodnoceni_csfd, nazev_filmu FROM filmy
+    WHERE hodnoceni_csfd >= 90;
+            </code></pre></div>
+            <a href="http://www.postgresql.org/docs/9.3/static/functions-comparison.html">http://www.postgresql.org/docs/9.3/static/functions-comparison.html</a>
+          </section>
+
+          <section>
+            <h2><b>AND</b>, <b>OR</b>, <b>NOT</b></h2>
+            <table style='font-size:0.7em; width:50%; margin-right:auto; margin-left:auto;' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th><tt class="REPLACEABLE c2">a</tt></th>
+                  <th><tt class="REPLACEABLE c2">b</tt></th>
+                  <th><tt class="REPLACEABLE c2">a</tt> AND <tt class="REPLACEABLE c2">b</tt></th>
+                  <th><tt class="REPLACEABLE c2">a</tt> OR <tt class="REPLACEABLE c2">b</tt></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>TRUE</td>
+                  <td>TRUE</td>
+                  <td>TRUE</td>
+                  <td>TRUE</td>
+                </tr>
+
+                <tr>
+                  <td>TRUE</td>
+                  <td>FALSE</td>
+                  <td>FALSE</td>
+                  <td>TRUE</td>
+                </tr>
+
+                <tr>
+                  <td>TRUE</td>
+                  <td>NULL</td>
+                  <td>NULL</td>
+                  <td>TRUE</td>
+                </tr>
+
+                <tr>
+                  <td>FALSE</td>
+                  <td>FALSE</td>
+                  <td>FALSE</td>
+                  <td>FALSE</td>
+                </tr>
+
+                <tr>
+                  <td>FALSE</td>
+                  <td>NULL</td>
+                  <td>FALSE</td>
+                  <td>NULL</td>
+                </tr>
+
+                <tr>
+                  <td>NULL</td>
+                  <td>NULL</td>
+                  <td>NULL</td>
+                  <td>NULL</td>
+                </tr>
+              </tbody>
+            </table>
+            <hr>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT rok_produkce, hodnoceni_csfd, nazev_filmu FROM filmy
+    WHERE rok_produkce = '2012' AND hodnoceni_csfd > 90;
+            </code></pre></div>
+
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT naklady, reziser_prij, nazev_filmu FROM filmy
+    WHERE
+      (reziser_prij = 'Sverak' OR reziser_prij = 'Menzel')
+      AND naklady < 1 000 000
+    ORDER BY naklady;
+            </code></pre></div>
+            <a href="http://www.postgresql.org/docs/9.3/static/functions-logical.html">http://www.postgresql.org/docs/9.3/static/functions-logical.html</a>
+          </section>
+
+          <section>
+            <h2>IS <span class='text-muted'>[NOT]</span> NULL</h2>
+            <p>expression <b>IS NULL</b></p>
+            <p>expression <b>IS NOT NULL</b></p>
+            <hr>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT nazev_filmu FROM filmy
+    WHERE naklady IS NULL;
+            </code></pre></div>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT premiera, nazev_filmu FROM filmy
+    WHERE rok_produkce = '2013' AND premiera IS NOT NULL;
+            </code></pre></div>
+            <a href="http://www.postgresql.org/docs/9.3/static/functions-comparison.html">http://www.postgresql.org/docs/9.3/static/functions-comparison.html</a>
+            <p>
+              Z dokumentace:
+            </p>
+            <p class='text-danger'>
+              Do not write expression = NULL because NULL is not "equal to" NULL.
+              (The null value represents an unknown value, and it is not known whether two unknown values are equal.)
+              This behavior conforms to the SQL standard.
+            </p>
+          </section>
+
+          <section>
+            <h2>BETWEEN</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+a BETWEEN x AND y
+            </code></pre></div>
+            <p>
+              je stejné jako
+            </p>
+            <div class='big'><pre><code data-trim contenteditable>
+a >= x AND a <= y
+            </code></pre></div>
+            <hr>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT naklady, nazev_filmu FROM filmy
+    WHERE naklady BETWEEN 1000000 AND 2000000;
+            </code></pre></div>
+
+            <a href="http://www.postgresql.org/docs/9.3/static/functions-comparison.html">http://www.postgresql.org/docs/9.3/static/functions-comparison.html</a>
+          </section>
+
+          <section>
+            <h2>LIKE</h2>
+            <table style='font-size:0.7em; width:70%; margin-right:auto; margin-left:auto;' class="table table-bordered table-striped table-condensed ">
+              <tr>
+                <td style='vertical-align:bottom;'>
+                  <b class='big'>_</b> <small>(podtržítko)</small>
+                </td>
+                <td>
+                  symbolizuje právě jeden libovolný znak
+                </td>
+              </tr>
+              <tr>
+                <td style='vertical-align:bottom;'>
+                  <b class='big'>%</b> <small>(procento)</small>
+                </td>
+                <td>
+                  symbolizuje libovolný počet znaků
+                </td>
+              </tr>
+            </table>
+
+            <h3>LIKE / NOT LIKE</h3>
+            <table style='font-size:0.7em; width:50%; margin-right:auto; margin-left:auto;' class="table table-bordered table-striped table-condensed ">
+              <tr>
+                <td>'abc' LIKE 'abc'</td>
+                <td>  =>  true </td>
+              </tr>
+              <tr>
+                <td>'abc' LIKE 'a%'</td>
+                <td>  =>  true </td>
+              </tr>
+              <tr>
+                <td>'abc' LIKE '_b_'</td>
+                <td>  =>  true </td>
+              </tr>
+              <tr>
+                <td>'abc' LIKE 'c'</td>
+                <td>  =>  false </td>
+              </tr>
+            </table>
+            <hr>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT nazev_filmu FROM filmy
+    WHERE nazev_filmu LIKE 'Tři%';
+            </code></pre></div>
+            <a href="http://www.postgresql.org/docs/9.3/static/functions-matching.html#FUNCTIONS-LIKE">http://www.postgresql.org/docs/9.3/static/functions-matching.html#FUNCTIONS-LIKE</a>
+          </section>
+
+          <section>
+            <h2>IN</h2>
+            <p>
+              Výčet prvků pro porovnávání
+            </p>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT nazev_filmu, reziser_prij
+FROM filmy
+    WHERE reziser_prij IN ('Sverak', 'Menzel');
+            </code></pre></div>
+            <p>
+               lze nahradit pomocí OR (zdlouhavěji)
+            </p>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT nazev_filmu, reziser_prij
+FROM filmy
+    WHERE reziser_prij = 'Sverak'
+      OR reziser_prij = 'Menzel';
+            </code></pre></div>
+            <a href="http://www.postgresql.org/docs/9.3/static/queries-table-expressions.html#QUERIES-WHERE">http://www.postgresql.org/docs/9.3/static/queries-table-expressions.html#QUERIES-WHERE</a>
+          </section>
+
+          <section>
+            <h2>
+              <b>+</b>, <b>-</b>, <b>*</b>, <b>/</b>
+            </h2>
+            <p>
+              ...a spousta dalších včetně matematických funkcí (sin(x)) viz odkaz.
+            </p>
+            <hr>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT (vynosy – naklady)*0.85 AS zisk FROM filmy
+    WHERE reziser_prij = 'Sverak'
+      AND nazev_filmu = 'Vratne lahve';
+            </code></pre></div>
+            <a href="http://www.postgresql.org/docs/9.3/static/functions-math.html">http://www.postgresql.org/docs/9.3/static/functions-math.html</a>
+          </section>
+
+        </section>
+
+        <section>
+
+          <section>
+            <h2>DIY - Do It Yourself</h2>
+          </section>
+
+          <section>
+            <h2>ÚKOL 1</h2>
+            <h3>Vytvořte tabulku Vašich TOP 5 nejoblíbenějších filmů</h3>
+            <ul>
+              <li>název filmu</li>
+              <li>příjmení režiséra</li>
+              <li>rok produkce</li>
+              <li>země</li>
+              <li>hodnocení ČSFD</li>
+              <li>pořadi v ČSFD (kategorie Žebříčky &rarr; Nejlepší filmy)</li>
+              <li>délka filmu</li>
+            </ul>
+            <p>
+              <p>Pro jednoduchost nevytvářejte další tabulku Režisér (tj. stačí splnit 1. NF).</p>
+            </p>
+          </section>
+          <section>
+            <h2>ÚKOL 1 - pokračování</h2>
+            <p>
+              Vypište z tabulky všechny filmy, které mají podle ČSFD hodnocení vyšší než
+              80 %. Výstupy seřaďte sestupně podle roku, ve kterém byly produkovány.
+              Sada výsledků nechť obsahuje i příjmení režiséra.
+            </p>
+            <p>
+              Vypište jména všech režisérů, jejichž filmy se nachází v hodnocení žebříčku
+              „Nejlepší filmy“, nebyly natočeny v Česku a netrvají déle než 2 hodiny.
+              V sadě výsledků uveďte i jméno filmu.
+              Názvy sloupců nechť se zobrazí jako „Reziser“ a „Film“.
+            </p>
+          </section>
+
+          <section>
+            <h2>ÚKOL 2 - dobrovolný</h2>
+            <h3>Upravte tabulku z úkolu 1.</h3>
+            <ul>
+              <li>Upravte tabulku tak aby splňovala i 3. NF</li>
+              <li>Mimo příjmení režiséra zadejte i jeho jméno</li>
+            </ul>
+            <p>
+              <small>Pro zvídavé připomínka spojování tabulek:</small><br>
+              <small>SELECT * FROM film INNER JOIN autor ON (film.autor_id = autor.id)</small>
+            </p>
+            <hr>
+            <p>
+              Vyberte jméno a příjmení všech autorů, kteří vytvořili nějaký film mezi roky 1990 a 2010
+              <small>(Použijte BETWEEN)</small>
+            </p>
+            <p>
+              Vyberte všechny filmy, které začínají na písmeno "T".
+              <small>(případně si zvolte takové, aby se vybral alespoň jeden film)</small>
+              <small>(Použijte LIKE)</small>
+            </p>
+            <p>Vyberte filmy, které vyprodukovali režiséři s jejich ID 1, 2 a 3. <small>(Použijte IN)</small></p>
+          </section>
+
+        </section>
+
+        <section>
+            <h1>Děkuji za pozornost</h1>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="/lib/js/head.min.js"></script>
+    <script src="/js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in //css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '../plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+          //{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

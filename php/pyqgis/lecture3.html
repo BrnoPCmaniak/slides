@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>[03] Plugins and scripts together</title>
+
+    <meta name="description" content="Basics of QGIS scripting and plugin creation.">
+    <meta name="author" content="Pavel Grochal">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="/css/bootstrap.dark.min.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.min.css">
+    <link rel="stylesheet" href="/css/theme/darkless.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.custom.css">
+
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="/lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h1>PyQGIS</h1>
+          <h3><small>[03]</small> Plugins and scripts together</h3>
+        </section>
+
+        <section>
+          <section>
+            <h2 class="title">Updating dialog in Qt Designer</h2>
+            <ol>
+              <li>Add <span class="text-success">Push Button</span> to dialog</li>
+              <li>Set objectName of <span class="text-success">Push Button</span> to <span class="text-success">selectFolderButton</span></li>
+              <li>Add <span class="text-success">Line Edit</span> to dialog</li>
+              <li>Set objectName of <span class="text-success">Line Edit</span> to <span class="text-success">fileLineEdit</span></li>
+            </ol>
+          </section>
+
+          <section>
+            <h2 class="title">Recompile form.ui</h2>
+            <div><pre><code data-trim>
+cd ~/.qgis2/python/plugins/MyPlugin/
+
+pyuic4 form.ui -o form.py
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>Edit formDialog.py</h2>
+            <div><pre><code class="python" data-trim contenteditable style="max-height:100%">
+import sys
+from PyQt4 import QtCore, QtGui
+from form import Ui_Dialog
+
+class FormDialog(QtGui.QDialog):
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
+
+        self.ui.selectFolderButton.clicked.connect(self.show_file_dialog)
+        self.dir_name = ""
+
+    def show_file_dialog(self):
+        self.dir_name = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory", self.dir_name)
+        self.ui.fileLineEdit.setText(self.dir_name)
+            </code></pre></div>
+            <div style="position:absolute; right:0; top:0; z-index:999; border:1px solid #999999; padding:5px; font-size:0.7em; background-color:#111">
+              <ul class="tree">
+                <li>metadata.txt</li>
+                <li>icon.png</li>
+                <li>__init__.py</li>
+                <li>mainPlugin.py</li>
+                <li>form.ui</li>
+                <li>form.py</li>
+                <li class="red">formDialog.py</li>
+                <li>resources.qrc</li>
+                <li>resources.py</li>
+              </ul>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="title">Copy loader.py</h2>
+            <p>Copy <span class="text-success">loader.py</span> from scripts to MyPlugin</p>
+            <ul class="tree">
+              <li>MyPlugin
+                <ul>
+                  <li>metadata.txt</li>
+                  <li>icon.png</li>
+                  <li>__init__.py</li>
+                  <li>mainPlugin.py</li>
+                  <li>form.ui</li>
+                  <li>form.py</li>
+                  <li>formDialog.py</li>
+                  <li>resources.qrc</li>
+                  <li>resources.py</li>
+                  <li class="red">loader.py</li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>Edit mainPlugin.py</h2>
+            <div><pre><code class="python" data-trim contenteditable style="max-height:100%">
+...
+
+from loader import Loader
+
+class Plugin:
+
+    def initGui(self):
+        # Build GUI window
+        self.dlg = FormDialog()
+        self.dlg.accepted.connect(self.accept)
+        self.l = Loader(self._iface)
+
+        ...
+
+    def accept(self):
+        print "My Plugin: accept called!"
+        self.l.load(self.dlg.dir_name)
+
+    ...
+
+            </code></pre></div>
+            <div style="position:absolute; right:0; top:0; z-index:999; border:1px solid #999999; padding:5px; font-size:0.7em; background-color:#111">
+              <ul class="tree">
+                <li>metadata.txt</li>
+                <li>icon.png</li>
+                <li>__init__.py</li>
+                <li class="red">mainPlugin.py</li>
+                <li>form.ui</li>
+                <li>form.py</li>
+                <li>resources.qrc</li>
+                <li>resources.py</li>
+              </ul>
+            </div>
+          </section>
+
+        </section>
+
+        <section>
+          <section>
+            <h2 class="title">Plugin Builder</h2>
+            <h3 class="small"><span class="text-warning">[* Tip for plugin!]</span></h3>
+          </section>
+
+          <section>
+            <p><span class="text-success">Plugin Builder</span> is plugin used for easy plugin skeleton creation.
+              It generates <span class="text-success">basic plugin structure</span> with quite a few additional things.</p>
+            <ul class="tree small" style="display:inline-block;">
+              <li><img src="/pyqgis/img/folder_icon.png" alt="" style="border:none; alignment:center; margin:0; background:none;">GeneratedPlugin
+                <ul>
+                  <li><img src="/pyqgis/img/folder_icon.png" alt="" style="border:none; alignment:center; margin:0; background:none;">help
+                    <ul>
+                      <li><img src="/pyqgis/img/folder_icon.png" alt="" style="border:none; alignment:center; margin:0; background:none;">build
+                        <ul>
+                          <li>[...]</li>
+                        </ul>
+                      </li>
+                      <li><img src="/pyqgis/img/folder_icon.png" alt="" style="border:none; alignment:center; margin:0; background:none;">source
+                        <ul>
+                          <li>[...]</li>
+                        </ul>
+                      </li>
+                      <li>make.bat</li>
+                      <li>Makefile</li>
+                    </ul>
+                  </li>
+                  <li><img src="/pyqgis/img/folder_icon.png" alt="" style="border:none; alignment:center; margin:0; background:none;">i18n
+                    <ul>
+                      <li>af.ts</li>
+                    </ul>
+                  </li>
+                  <li><img src="/pyqgis/img/folder_icon.png" alt="" style="border:none; alignment:center; margin:0; background:none;">scripts
+                    <ul>
+                      <li>compile-strings.sh</li>
+                      <li>run-env-linux.sh</li>
+                      <li>update-strings.sh</li>
+                    </ul>
+                  </li>
+                  <li><img src="/pyqgis/img/folder_icon.png" alt="" style="border:none; alignment:center; margin:0; background:none;">test
+                    <ul>
+                      <li>[...]</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="tree small" style="display:inline-block;">
+              <li>icon.png</li>
+              <li>__init__.py</li>
+              <li>Makefile</li>
+              <li>metadata.txt</li>
+              <li>pb_tool.cfg</li>
+              <li>plugin_upload.py</li>
+              <li>pylintrc</li>
+              <li>README.html</li>
+              <li>README.txt</li>
+              <li>reources.py</li>
+              <li>reources.qrc</li>
+              <li>reources.txt</li>
+              <li>&lt;plugin_name&gt;.py</li>
+              <li>&lt;plugin_name&gt;_dialog.py</li>
+              <li>&lt;plugin_name&gt;_dialog_base.ui</li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2 class="title">Extending QGIS interface</h2>
+            <p>
+              It is possible to extend QGIS functionality practically in any way.
+              We will be creating custom Renderer with integration to QGIS menus.
+            </p>
+          </section>
+          <section>
+            <h2 class="title">CustomRenderer</h2>
+            <ul class="tree small" style="display:inline-block;">
+              <li>__init__.py</li>
+              <li>CustomRenderer.py</li>
+              <li>CustomRendererMetadata.py</li>
+              <li>CustomRendererPlugin.py</li>
+              <li>CustomRendererWidget.py</li>
+              <li>icon.png</li>
+              <li>metadata.txt</li>
+            </ul>
+          </section>
+
+          <section>
+            <div><pre><code class="python" data-trim contenteditable style="max-height:100%">
+# -*- coding: utf-8 -*-
+
+
+def classFactory(iface):
+    from .CustomRendererPlugin import Plugin
+    return Plugin(iface)
+            </code></pre></div>
+            <div style="position:absolute; right:0; top:0; z-index:999; border:1px solid #999999; padding:5px; font-size:0.7em; background-color:#111">
+              <ul class="tree">
+                <li class="red">__init__.py</li>
+                <li>CustomRenderer.py</li>
+                <li>CustomRendererMetadata.py</li>
+                <li>CustomRendererPlugin.py</li>
+                <li>CustomRendererWidget.py</li>
+                <li>icon.png</li>
+                <li>metadata.txt</li>
+              </ul>
+            </div>
+          </section>
+
+          <section>
+            <div><pre><code class="python" data-trim contenteditable style="max-height:100%">
+# -*- coding: utf-8 -*-
+import os
+from qgis.core import QgsRendererV2Registry
+from CustomRendererMetadata import CustomRendererMetadata
+
+
+class Plugin:
+    def __init__(self, iface):
+        self._iface = iface
+        self._plugin_dir = os.path.dirname(__file__)
+        self._metadata = None
+
+    def initGui(self):
+        self._metadata = CustomRendererMetadata()
+        QgsRendererV2Registry.instance().addRenderer(self._metadata)
+
+    def unload(self):
+        QgsRendererV2Registry.instance().removeRenderer("CustomRenderer")
+
+    def canBeUninstalled(self):
+        return True
+
+            </code></pre></div>
+            <div style="position:absolute; right:0; top:0; z-index:999; border:1px solid #999999; padding:5px; font-size:0.7em; background-color:#111">
+              <ul class="tree">
+                <li>__init__.py</li>
+                <li>CustomRenderer.py</li>
+                <li>CustomRendererMetadata.py</li>
+                <li class="red">CustomRendererPlugin.py</li>
+                <li>CustomRendererWidget.py</li>
+                <li>icon.png</li>
+                <li>metadata.txt</li>
+              </ul>
+            </div>
+          </section>
+
+          <section>
+            <div><pre><code class="python" data-trim contenteditable style="max-height:100%">
+# -*- coding: utf-8 -*-
+
+import random
+
+from qgis._core import QGis
+from qgis._core import QgsFeatureRendererV2
+from qgis._core import QgsSymbolV2
+
+
+class CustomRenderer(QgsFeatureRendererV2):
+    def __init__(self, syms=None):
+        QgsFeatureRendererV2.__init__(self, "CustomRenderer")
+        self.syms = syms if syms else [QgsSymbolV2.defaultSymbol(QGis.Point), QgsSymbolV2.defaultSymbol(QGis.Point)]
+
+    def symbolForFeature(self, feature):
+        return random.choice(self.syms)
+
+    def startRender(self, context, vlayer):
+        for s in self.syms:
+            s.startRender(context)
+
+    def stopRender(self, context):
+        for s in self.syms:
+            s.stopRender(context)
+
+    def usedAttributes(self):
+        return []
+
+    def clone(self):
+        return CustomRenderer(self.syms)
+            </code></pre></div>
+            <div style="position:absolute; right:0; top:0; z-index:999; border:1px solid #999999; padding:5px; font-size:0.7em; background-color:#111">
+              <ul class="tree">
+                <li>__init__.py</li>
+                <li class="red">CustomRenderer.py</li>
+                <li>CustomRendererMetadata.py</li>
+                <li>CustomRendererPlugin.py</li>
+                <li>CustomRendererWidget.py</li>
+                <li>icon.png</li>
+                <li>metadata.txt</li>
+              </ul>
+            </div>
+          </section>
+
+          <section>
+            <div><pre><code class="python" data-trim contenteditable style="max-height:100%">
+# -*- coding: utf-8 -*-
+
+from qgis._core import QgsRendererV2AbstractMetadata
+
+from CustomRenderer import CustomRenderer
+from CustomRendererWidget import CustomRendererWidget
+
+
+class CustomRendererMetadata(QgsRendererV2AbstractMetadata):
+    def __init__(self):
+        QgsRendererV2AbstractMetadata.__init__(self, "CustomRenderer", "Custom renderer")
+
+    def createRenderer(self, element):
+        return CustomRenderer()
+
+    def createRendererWidget(self, layer, style, renderer):
+        return CustomRendererWidget(layer, style, renderer)
+            </code></pre></div>
+            <div style="position:absolute; right:0; top:0; z-index:999; border:1px solid #999999; padding:5px; font-size:0.7em; background-color:#111">
+              <ul class="tree">
+                <li>__init__.py</li>
+                <li>CustomRenderer.py</li>
+                <li class="red">CustomRendererMetadata.py</li>
+                <li>CustomRendererPlugin.py</li>
+                <li>CustomRendererWidget.py</li>
+                <li>icon.png</li>
+                <li>metadata.txt</li>
+              </ul>
+            </div>
+          </section>
+
+          <section>
+            <div><pre><code class="python" data-trim contenteditable style="max-height:100%">
+# -*- coding: utf-8 -*-
+# [imports]
+
+class CustomRendererWidget(QgsRendererV2Widget):
+    def __init__(self, layer, style, renderer):
+        QgsRendererV2Widget.__init__(self, layer, style)
+        if renderer is None or renderer.type() != "CustomRenderer":
+            self.r = CustomRenderer()
+        else:
+            self.r = renderer
+
+        self.btn1 = QgsColorButtonV2()
+        self.btn1.setColor(self.r.syms[0].color())
+        self.connect(self.btn1, SIGNAL("colorChanged(QColor)"), self.setColor1)
+
+        self.symbol = QgsSymbolV2SelectorDialog(self.r.syms[0],style,layer,self,False)
+        self.button = QPushButton()
+        icon = QgsSymbolLayerV2Utils.symbolPreviewIcon(self.r.syms[0], QSize(10, 10))
+        self.button.setIcon(icon)
+        self.label = QLabel()
+        preview = self.r.syms[0].bigSymbolPreviewImage()
+        self.label.setPixmap(QPixmap.fromImage(preview))
+        self.connect(self.button, SIGNAL("clicked()"), self.symbol.show)
+
+        self.vbox = QVBoxLayout()
+        self.vbox.addWidget(self.btn1)
+        self.vbox.addWidget(self.button)
+        self.vbox.addWidget(self.label)
+        self.setLayout(self.vbox)
+
+    def setColor1(self, color):
+        if not color.isValid():
+            return
+        self.r.syms[0].setColor(color)
+
+    def renderer(self):
+        return self.r
+
+            </code></pre></div>
+            <div style="position:absolute; right:0; top:0; z-index:999; border:1px solid #999999; padding:5px; font-size:0.7em; background-color:#111">
+              <ul class="tree">
+                <li>__init__.py</li>
+                <li>CustomRenderer.py</li>
+                <li>CustomRendererMetadata.py</li>
+                <li>CustomRendererPlugin.py</li>
+                <li class="red">CustomRendererWidget.py</li>
+                <li>icon.png</li>
+                <li>metadata.txt</li>
+              </ul>
+            </div>
+          </section>
+
+        </section>
+
+        <section>
+          <section>
+            <h2 class="title">Browsing documentation</h2>
+            <h4>PyQGIS Developer Cookbook</h4>
+            <p>
+              <a href="http://docs.qgis.org/testing/en/docs/pyqgis_developer_cookbook/index.html">http://docs.qgis.org/testing/en/docs/pyqgis_developer_cookbook/index.html</a>
+            </p>
+            <hr>
+            <h4>QGIS API</h4>
+            <p>
+              <a href="https://qgis.org/api/modules.html">https://qgis.org/api/modules.html</a>
+            </p>
+            <hr>
+            <h4>QGIS source code</h4>
+            <p>
+              <a href="https://qgis.org/downloads/">https://qgis.org/downloads/</a>
+            </p>
+          </section>
+
+          <section>
+            <h2 class="title">Why <span class="text-success">PyQGIS Developer Cookbook</span></h2>
+            <p>Basic description of Python scripting in QGIS</p>
+            <ul>
+              <li>Working with Layers</li>
+              <li>Working with geometry</li>
+              <li>Projections</li>
+              <li>Map rendering and printing</li>
+              <li>Developing Python plugins</li>
+              <li>(Random Renderer example)</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 class="title">Why <span class="text-success">QGIS API</span></h2>
+            <p>List / description of all Python methods used in QGIS</p>
+            <h4>core library</h4>
+            <div><pre><code class="python" data-trim>
+from qgis.core import QgsRendererV2Registry
+from qgis.core import QgsSymbolV2
+            </code></pre></div>
+            <hr>
+            <h4>gui library</h4>
+            <div><pre><code class="python" data-trim>
+from qgis.gui import QgsColorButtonV2
+from qgis.gui import QgsSymbolV2SelectorDialog
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2 class="title">Why <span class="text-success">QGIS source code</span></h2>
+            <p>Implementation of specific methods/functions.</p>
+            <p class="small">* Implemented in C++</p>
+            <div><a href="/pyqgis/files/qgscolorbuttonv2.cpp" target="_blank">qgscolorbuttonv2.cpp</a></div>
+            <div><a href="/pyqgis/files/qgssymbolv2selectordialog.cpp" target="_blank">qgssymbolv2selectordialog.cpp</a></div>
+          </section>
+
+          <section>
+            <h2 class="title">All Downloads</h2>
+            <ul>
+              <li><a href="/pyqgis/files/MyPlugin_skeleton.zip">MyPlugin_skeleton.zip</a></li>
+              <li><a href="/pyqgis/files/MyPlugin_basicgui.zip">MyPlugin_basicgui.zip</a></li>
+              <li><a href="/pyqgis/files/MyPlugin_filechoser.zip">MyPlugin_filechoser.zip</a></li>
+              <li><a href="/pyqgis/files/CustomRenderer.zip">CustomRenderer.zip</a></li>
+            </ul>
+          </section>
+
+        </section>
+
+        <section>
+            <h1>Thank you for your attention.</h1>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="/lib/js/head.min.js"></script>
+    <script src="/js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in //css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '../plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+          //{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Lecture 10 - Z3104 GEODATABÁZE</title>
+
+    <meta name="description" content="Z3104 Geodatabáze - materiály ">
+    <meta name="author" content="Pavel Grochal, Michal Zimmermann">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="/css/bootstrap.dark.min.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.min.css">
+    <link rel="stylesheet" href="/css/theme/darkless.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.custom.css">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="/lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h1>Lecture 10</h1>
+          <h3>Z3104 GEODATABÁZE</h3>
+        </section>
+
+        <section>
+          <h2>Obsah</h2>
+          <ul>
+            <li>Nová teorie</li>
+            <li>DIY - Do It Yourself</li>
+          </ul>
+        </section>
+
+        <section>
+          <section>
+            <h2>Nová teorie</h2>
+          </section>
+
+          <section>
+            <h2>Encoding</h2>
+            <ul>
+              <li>ASCII</li>
+              <li>Windows-1250</li>
+              <li>ISO 8859-2 (Latin-2)</li>
+              <li>UTF (UTF-8, UTF-16, UTF-32)</li>
+            </ul>
+            <a href="http://www.cestina.cz/kodovani/">http://www.cestina.cz/kodovani/</a>
+          </section>
+
+          <section>
+            <h2>OPERATORS</h2>
+            <h3><a href="http://postgis.net/docs/manual-2.1/reference.html#Operators">Documentace</a></h3>
+            <p>vždy používají indexy</p>
+            <h3>2 geometrie ~&gt; OPERATOR ~&gt; Boolean </h3>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT * FROM table
+    JOIN another_table ON table.geom && another_table.geom
+    AND another_table.name = 'Jihomoravsk'
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>SPATIAL RELATIONSHITPS AND MEASUEMENTS</h2>
+            <h3><a href="http://postgis.net/docs/manual-2.1/reference.html#Spatial_Relationships_Measurements">Documentace</a></h3>
+            <h3>2 geometrie ~&gt; FUNCTION ~&gt; Boolean </h3>
+            <ul>
+            	<li><a href="http://postgis.net/docs/manual-2.1/ST_Within.html" target="_blank">ST_Within</a></li>
+            	<li><a href="http://postgis.net/docs/manual-2.1/ST_Intersects.html" target="_blank">ST_Intersects</a></li>
+            	<li><a href="http://postgis.net/docs/manual-2.1/ST_Overlaps.html" target="_blank">ST_Overlaps</a></li>
+            	<li><a href="http://postgis.net/docs/manual-2.1/ST_Touches.html" target="_blank">ST_Touches</a></li>
+            	<li><a href="http://postgis.net/docs/manual-2.1/ST_Equals.html" target="_blank">ST_Equals</a></li>
+            	<li><a href="http://postgis.net/docs/manual-2.1/ST_Disjoint.html" target="_blank">ST_Disjoint</a></li>
+            	<li><a href="http://postgis.net/docs/manual-2.1/ST_Crosses.html" target="_blank">ST_Crosses</a></li>
+            	<li><a href="http://postgis.net/docs/manual-2.1/ST_Covers.html" target="_blank">ST_Covers</a></li>
+            </ul>
+          </section>
+
+        </section>
+
+        <section>
+
+          <section>
+            <h2>DIY - Do It Yourself</h2>
+          </section>
+
+          <section>
+            <h2>Úkol 1</h2>
+            <ol>
+              <li>Najděte všechny kraje ležící severněji než Jihomoravský kraj</li>
+              <li>Najděte všechny okresy ležící v Jihomoravském kraji</li>
+              <li>Najděte všechny kraje, které sousedí s Jihomoravským krajem</li>
+              <li>Seřaďte kraje podle počtu krajů, s kterými sousedí.</li>
+              <li>Najděte 10 měst nejblíže k Brnu, která mají více než 10 000 obyvatel</li>
+              <li>Jaká je celková plocha zástavby v okrese Brno-město? Kolika procenty se zástavba podílí na celkové ploše okresu?</li>
+              <li>Kterými okresy Jihomoravského kraje protéká Litava?</li>
+            </ol>
+          </section>
+
+          <section>
+            <h2>Řešení</h2>
+            <div class=''><pre><code data-trim>
+SELECT k1.* FROM kraje AS k1
+  JOIN kraje AS k2 ON k1.geom |>> k2.geom
+  WHERE k2."NAZEV" = 'Jihomoravský';
+
+SELECT o.* FROM kraje AS k
+  JOIN okresy AS o ON o.geom @ k.geom
+  WHERE k."NAZEV" = 'Jihomoravský';
+
+SELECT k1.* FROM kraje AS k1
+  JOIN kraje AS k2 ON ST_Touches(k1.geom, k2.geom)
+  WHERE k2."NAZEV" = 'Jihomoravský';
+
+SELECT k1."NAZEV", COUNT(k2."NAZEV")AS sousedi FROM kraje AS k1
+  JOIN kraje AS k2 ON ST_Touches(k1.geom,k2.geom)
+  GROUP BY k1."NAZEV"
+  ORDER BY sousedi DESC
+
+SELECT p1.*, ST_Distance(p1.geom::geography, p2.geom::geography) AS vzdalenost FROM places AS p1
+  CROSS JOIN places AS p2
+  WHERE p2.name = 'Brno'
+  AND ST_Distance(p1.geom::geography, p2.geom::geography) > 0
+  AND p1.population > 10000
+  ORDER BY vzdalenost
+  LIMIT 10;
+
+SELECT b.zastavba, o.brno_mesto, ((b.zastavba * 100) / o.brno_mesto ) AS procento FROM
+  (SELECT SUM(ST_Area(b.geom::geography)/1000000) AS zastavba FROM buildings_bm AS b) AS b,
+  (SELECT SUM(ST_Area(o.geom::geography)/1000000) AS brno_mesto FROM okresy AS o WHERE o."NAZEV" = 'Brno-město') AS o;
+
+SELECT o.* FROM okresy AS o
+  JOIN waterways AS w ON ST_Intersects(o.geom, w.geom)
+  WHERE w.name = 'Litava';
+            </code></pre></div>
+          </section>
+
+        </section>
+
+        <section>
+            <h1>Děkuji za pozornost</h1>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="/lib/js/head.min.js"></script>
+    <script src="/js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in //css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '../plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+          //{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

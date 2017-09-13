@@ -1,0 +1,119 @@
+.big {
+    font-size: 1.5em !important;
+}
+
+.small {
+    font-size: 0.75em !important;
+}
+
+.red {
+    color: #CD0000 !important;
+}
+.orange {
+    color: #cd7d2d !important;
+}
+.blue {
+    color: #369 !important;
+}
+
+.streamparse-logo-blue-light {
+    color: #00B1DE !important;
+}
+.streamparse-logo-blue-dark {
+    color: #315E73 !important;
+}
+.streamparse-text-blue {
+    color: #326176 !important;
+}
+
+.topology-red {
+    color: #BC351A !important;
+}
+.topology-green {
+    color: #39A900 !important;
+}
+.topology-teal {
+    color: #00A99F !important;
+}
+.topology-blue {
+    color: #BC351A !important;
+}
+.topology-white {
+    color: #ffffff !important;
+}
+.topology-file-li {
+    color: #00B1DE !important;
+}
+.topology-purple {
+    color: #8326d7 !important;
+}
+
+.tilt20 {
+    -webkit-transform: rotate(20deg);
+    -moz-transform: rotate(20deg);
+    -ms-transform: rotate(20deg);
+    -o-transform: rotate(20deg);
+    transform: rotate(20deg);
+}
+
+ul.nolist {
+    list-style-type: none;
+}
+
+h2.title {
+    margin-bottom: 1em;
+}
+
+h2.titletop {
+    margin-top: 1em;
+}
+
+ul.tree, ul.tree ul {
+    list-style: none !important;
+    margin: 0;
+    padding: 0;
+}
+
+ul.tree ul {
+    margin-left: 30px;
+}
+
+ul.tree li {
+    margin: 0;
+    padding: 0 7px;
+    line-height: 30px;
+    color: #00B1DE;
+    /*font-weight: bold;*/
+    border-left: 1px solid rgb(100, 100, 100);
+}
+
+ul.tree li:last-child {
+    border-left: none;
+}
+
+ul.tree li:before {
+    position: relative;
+    top: -0.3em;
+    height: 1em;
+    width: 20px;
+    color: white;
+    border-bottom: 1px solid rgb(100, 100, 100);
+    content: "";
+    display: inline-block;
+    left: -7px;
+}
+
+ul.tree li:last-child:before {
+    top: -0.1em;
+    padding: 0 7px;
+    border-left:1px solid rgb(100,100,100);
+   }
+
+ul.tree.large li{
+
+}
+
+.reveal i{
+    font-family: 'FontAwesome';
+    font-style: normal;
+}

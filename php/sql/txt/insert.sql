@@ -1,0 +1,10 @@
+INSERT INTO cities (name, x, y) VALUES ('Brno',16.62,49.2);
+INSERT INTO cities (name, x, y) VALUES ('Olomouc',17.250833,49.593889);
+INSERT INTO cities (name, x, y) VALUES ('Praha',14.4211,50.0872);
+INSERT INTO cities (name, x, y) VALUES ('Pardubice',15.77916,50.03861);
+INSERT INTO cities (name, x, y) VALUES ('Hradec Králové',15.8375,50.211111);
+INSERT INTO cities (name, x, y) VALUES ('Ostrava',18.292778,49.835556);
+INSERT INTO cities (name, x, y) VALUES ('Plzeň',13.3775,49.746944);
+INSERT INTO cities (name, x, y) VALUES ('České Budějovice',14.474722,48.974722);
+INSERT INTO cities (name, x, y) VALUES ('Liberec',15.06666,50.71666);
+INSERT INTO cities (name, x, y) VALUES ('Jablonec',15.171111,50.724167);

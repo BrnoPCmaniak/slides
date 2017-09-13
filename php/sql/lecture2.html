@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Lecture 2 - Z3104 GEODATABÁZE</title>
+
+		<meta name="description" content="Z3104 Geodatabáze - materiály ">
+		<meta name="author" content="Pavel Grochal">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="/css/bootstrap.dark.min.css" id="theme">
+		<link rel="stylesheet" href="/css/reveal.min.css">
+		<link rel="stylesheet" href="/css/theme/darkless.css" id="theme">
+		<link rel="stylesheet" href="/css/reveal.custom.css">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="/lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+					<h1>Lecture 2</h1>
+					<h3>Z3104 GEODATABÁZE</h3>
+				</section>
+
+				<section>
+					<h2>Obsah</h2>
+					<ul>
+						<li>Opakování</li>
+						<li>Trocha nové teorie</li>
+						<li>DIY - Do It Yourself</li>
+					</ul>
+				</section>
+
+				<section>
+					<section>
+						<h2>Opakování</h2>
+					</section>
+
+					<section>
+						<h2>CREATE TABLE</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE nazev_tabulky
+	(
+	nazev_sloupce INT,
+	nazev_sloupce_2 VARCHAR(10)
+	);
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>ALTER TABLE</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE nazev_tabulky
+ADD COLUMN jmeno_sloupce TEXT;
+						</code></pre></div>
+						<a href="http://www.postgresql.org/docs/9.3/static/sql-altertable.html">http://www.postgresql.org/docs/9.3/static/sql-altertable.html</a>
+					</section>
+
+					<section>
+						<h2>INSERT</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+INSERT INTO nazev_tabulky
+	(sloupec1, sloupec2, sloupec3)
+VALUES
+	(hodnota1, hodnote2, hodnota2);
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>SELECT</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+SELECT sloupec1, sloupec2 FROM nazev_tabulky;
+						</code></pre></div>
+						<div class='big'><pre><code data-trim contenteditable>
+SELECT * FROM nazev_tabulky;
+						</code></pre></div>
+						<div class='big'><pre><code data-trim contenteditable>
+SELECT sloupec1, sloupec2 FROM nazev_tabulky
+    WHERE sloupec1 = hodnota1;
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>Primární klíč</h2>
+						<div class='fragment'>
+							Unikátní hodnota, která jednoznačně identifikuje záznam v tabulce.
+						</div>
+					</section>
+
+
+					<section>
+						<h2>Datové typy</h2>
+						<ul>
+							<li>int / integer</li>
+							<li>real</li>
+							<li>varchar(n) / character varying (n)</li>
+							<li>bool</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Integritní omezení</h2>
+						<p>
+							Slouží k definování pravidel, která omezují či definují způsob použití databáze/tabulek.
+						</p>
+						<ul>
+							<li>Datové typy</li>
+							<li>Primární klíč</li>
+							<li>UNIQUE</li>
+							<li>NOT NULL</li>
+							<li>CHECK</li>
+						</ul>
+						<aside class='notes'>
+							CHECK bude vysvětlen za 3 slidy dále.
+						</aside>
+					</section>
+
+				</section>
+
+				<section>
+
+					<section>
+						<h2>Trocha nové teorie</h2>
+					</section>
+
+					<section>
+						<h2>DROP TABLE</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+DROP TABLE nazev_tabulky;
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>DELETE FROM</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+DELETE FROM nazev_tabulky
+	WHERE podminka;
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>UPDATE</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+UPDATE nazev_tabulky
+	SET nazev_sloupce = hodnota
+	WHERE podminka;
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>Přidání primárního klíče</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE student
+	(
+	uco INT PRIMARY KEY,
+	jmeno VARCHAR(10)
+	);
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>Integritní omezení - realizace</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE student
+	(
+	uco INT PRIMARY KEY,
+	rodne_cislo VARCHAR(11) NOT NULL UNIQUE,
+	jmeno VARCHAR(10),
+	vek INT CHECK (vek > 0)
+	);
+						</code></pre></div>
+					</section>
+
+					<section>
+						<div class='big'><pre><code data-trim contenteditable>
+
+CREATE TABLE studenti
+		( prijmeni TEXT NOT NULL,
+			rocnik INT CHECK(rocnik < 6),
+			vek INT,
+			uco INT UNIQUE );
+
+INSERT INTO studenti VALUES ('Kinský', 4, 25, 178);
+
+INSERT INTO studenti VALUES ('Lobkowitz', 4, 25, 178);
+
+INSERT INTO studenti VALUES ('Belcredi', 7, 25, 235);
+
+INSERT INTO studenti (rocnik, vek, uco) VALUES (7,25,427);
+						</code></pre></div>
+					</section>
+
+				</section>
+
+				<section>
+
+					<section>
+						<h2>DIY - Do It Yourself</h2>
+					</section>
+
+					<section>
+						<h2>ÚKOL 1</h2>
+						<h3>Navrhněte tabulku pro evidenci prodeje kol.</h3>
+						<ul>
+							<li>Použijte vhodné datové typy</li>
+							<li>Dodržuje 1. normální formu</li>
+							<li>Zvolte vhodný primární klíč</li>
+						</ul>
+						<hr>
+						<h3>Vložte do tabulky následující kola</h3>
+						<table class='table table-bordered table-striped'>
+							<tr><td>KXZ 4000, červená, 5 převodů, 10.000,-Kč</td></tr>
+							<tr><td>BXX 200, modrá, 7 převodů, 12.000,-Kč</td></tr>
+							<tr><td>ZCW 10K, zelená, 12 převodů, 15.000,-Kč</td></tr>
+						</table>
+					</section>
+
+					<section>
+						<h2>ÚKOL 2</h2>
+						<h3>Navrhněte tabulky pro katalog knihovny</h3>
+						<ul>
+							<li>Použijte vhodné datové typy</li>
+							<li>Dodržuje 3. normální formu</li>
+							<li>Zvolte vhodný primární klíč</li>
+						</ul>
+						<hr>
+						<h3>Vložte do tabulky následující knihy</h3>
+						<table class='table table-bordered table-striped'>
+							<tr><td>Václav Cílek. <i>Borgesův svět</i>, 1. vyd. Praha: Dokořán, 2007. <b>ISBN 978073633</b>.</td></tr>
+							<tr><td>Jiří Sádlo. <i>Prázdná zem: listopadová část roku</i>, 1. vyd. Praha: Dauphin, 2009. <b>ISBN 978727210</b>.</td></tr>
+							<tr><td>Stanislav Komárek. <i>Černý domeček</i>, 3. vyd. . Brno: Petrov, 2004. <b>ISBN 807227186</b>.</td></tr>
+						</table>
+					</section>
+
+					<section>
+						<h2>ÚKOL 3</h2>
+						<h3>Navrhněte tabulkzy pro evidenci autopůjčovny</h3>
+						<ul>
+							<li>Použijte vhodné datové typy</li>
+							<li>Dodržuje 3. normální formu</li>
+							<li>Zvolte vhodný primární klíč</li>
+						</ul>
+						<hr>
+						<h3>Vložte do tabulky následující záznamy</h3>
+						<table class='table table-bordered table-striped'>
+							<tr><td>Jan Novák r.č. 810212/0011 ř.p. 1234532 - červená Škoda Octavia (3T6 8211) rv. 2004</td></tr>
+							<tr><td>Jan Novák r.č. 810212/0011 ř.p. 1234532 - zelená Honda Acord (4B8 1234) rv. 1998</td></tr>
+							<tr><td>Jiří Lunák r.č. 530422/535 ř.p. 1828402 - modrá Hundai Tiburon (2L5 4532) rv. 2000</td></tr>
+						</table>
+					</section>
+
+				</section>
+
+				<section>
+						<h1>Děkuji za pozornost</h1>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="/lib/js/head.min.js"></script>
+		<script src="/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in //css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: '../lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '../plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '../plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: '../plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+					//{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

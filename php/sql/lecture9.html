@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Lecture 9 - Z3104 GEODATABÁZE</title>
+
+    <meta name="description" content="Z3104 Geodatabáze - materiály ">
+    <meta name="author" content="Pavel Grochal, Michal Zimmermann">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="/css/bootstrap.dark.min.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.min.css">
+    <link rel="stylesheet" href="/css/theme/darkless.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.custom.css">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="/lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h1>Lecture 9</h1>
+          <h3>Z3104 GEODATABÁZE</h3>
+        </section>
+
+        <section>
+          <h2>Obsah</h2>
+          <ul>
+            <li>Opakovaní - indexy</li>
+            <li>Základy prostorových funkcí</li>
+            <li>DIY - Do It Yourself</li>
+          </ul>
+        </section>
+
+        <section>
+          <section>
+            <h2>GEOMETRY CONSTRUCTORS</h2>
+            <div>
+              <ul style="width:49%; display:inline-block;">
+                <li>ST_GeomFromText</li>
+                <li>ST_PointFromText</li>
+                <li>ST_PolygonFromText</li>
+                <li>ST_LineFromText</li>
+              </ul>
+              <ul style="width:49%; display:inline-block;">
+                <li>ST_GeomFromGeoJSON</li>
+                <li>ST_GeomFromGML</li>
+                <li>ST_GeomFromGeoHash</li>
+                <li>...</li>
+              </ul>
+            </div>
+            <h3>A co je ten text?</h3>
+            <p>
+              (wkt, [srid])
+            </p>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT ST_PointFromText('POINT(-71.064544 42.28787)', 4326);
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>DATA</h2>
+            <h3>
+              OpenStreetMap - <a href="http://download.geofabrik.de/europe.html">export z Geofabrik</a>
+            </h3>
+            <p>
+              slinice, železnice, vodní toky, budovy - poskytovna Z3104
+            </p>
+            import do PostGIS (minulé cvičení)
+          </section>
+
+          <section>
+            <h2>DÁME ZÁVOD?!</h2>
+          </section>
+
+          <section>
+            <h2>Jak vybrat data?</h2>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+CREATE TABLE railways_jm AS
+  SELECT railways.* FROM railways
+  JOIN kraje ON ST_Intersects(railways.the_geom, kraje.the_geom)
+  WHERE kraje."NAZEV" = 'Jihomoravský';
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>Vysledek - bez prostoroveho indexu</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+EXPLAIN ANALYZE
+  SELECT roads.* FROM roads
+  JOIN kraje ON ST_Intersects(roads.the_geom, kraje.the_geom)
+  WHERE kraje."NAZEV" = 'Jihomoravský';
+            </code></pre></div>
+            <div class=""><pre><code data-trim>
+"Nested Loop  (cost=0.00..479488.80 rows=561 width=218) (actual time=3.225..3157.865 rows=83504 loops=1)"
+"  Join Filter: ((roads.the_geom && kraje.the_geom) AND _st_intersects(roads.the_geom, kraje.the_geom))"
+"  Rows Removed by Join Filter: 757822"
+"  ->  Seq Scan on roads  (cost=0.00..33572.26 rows=841326 width=218) (actual time=0.012..112.022 rows=841326 loops=1)"
+"  ->  Materialize  (cost=0.00..13.76 rows=2 width=32) (actual time=0.000..0.000 rows=1 loops=841326)"
+"        ->  Seq Scan on kraje  (cost=0.00..13.75 rows=2 width=32) (actual time=0.011..0.014 rows=1 loops=1)"
+"              Filter: (("NAZEV")::text = 'Jihomoravský'::text)"
+"              Rows Removed by Filter: 13"
+"Total runtime: 3162.955 ms"
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>Vysledek - gist index</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+EXPLAIN ANALYZE
+  SELECT roads.* FROM roads
+  JOIN kraje ON ST_Intersects(roads.the_geom, kraje.the_geom)
+  WHERE kraje."NAZEV" = 'Jihomoravský';
+            </code></pre></div>
+            <div class=""><pre><code data-trim>
+"Nested Loop  (cost=4.92..349.87 rows=280 width=218) (actual time=26.372..1784.974 rows=83504 loops=1)"
+"  ->  Seq Scan on kraje  (cost=0.00..1.18 rows=1 width=32) (actual time=0.010..0.014 rows=1 loops=1)"
+"        Filter: (("NAZEV")::text = 'Jihomoravský'::text)"
+"        Rows Removed by Filter: 13"
+"  ->  Bitmap Heap Scan on roads  (cost=4.92..348.41 rows=28 width=218) (actual time=26.358..1772.682 rows=83504 loops=1)"
+"        Recheck Cond: (the_geom && kraje.the_geom)"
+"        Rows Removed by Index Recheck: 151437"
+"        Filter: _st_intersects(the_geom, kraje.the_geom)"
+"        Rows Removed by Filter: 79167"
+"        ->  Bitmap Index Scan on roads_idx  (cost=0.00..4.92 rows=84 width=0) (actual time=23.804..23.804 rows=162671 loops=1)"
+"              Index Cond: (the_geom && kraje.the_geom)"
+"Total runtime: 1789.744 ms"
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>Vysledek - gist index + lepsi vyber</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+EXPLAIN ANALYZE
+  SELECT roads.* FROM roads
+  JOIN kraje ON roads.geom && regions.the_geom
+  WHERE kraje."NAZEV" = 'Jihomoravský' AND ST_Intersects(roads.the_geom, regions.the_geom);
+            </code></pre></div>
+            <div class=""><pre><code data-trim>
+"Nested Loop  (cost=0.29..9.74 rows=1 width=218) (actual time=144.480..1354.557 rows=83504 loops=1)"
+"  ->  Seq Scan on kraje  (cost=0.00..1.18 rows=1 width=32) (actual time=0.013..0.017 rows=1 loops=1)"
+"        Filter: (("NAZEV")::text = 'Jihomoravský'::text)"
+"        Rows Removed by Filter: 13"
+"  ->  Index Scan using roads_idx on roads  (cost=0.29..8.55 rows=1 width=218) (actual time=144.400..1342.508 rows=83504 loops=1)"
+"        Index Cond: ((the_geom && kraje.the_geom) AND (the_geom && kraje.the_geom))"
+"        Filter: _st_intersects(the_geom, kraje.the_geom)"
+"        Rows Removed by Filter: 79167"
+"Total runtime: 1359.467 ms"
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>Vytváření indexů</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE INDEX tablename_idx ON tablename USING GIST(geometry_column);
+            </code></pre></div>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE tablename ADD PRIMARY KEY (column_name);
+            </code></pre></div>
+          </section>
+
+          <section>
+            <ul>
+              <li><strong><a href="http://postgis.net/docs/manual-2.1/ST_Area.html" target="_blank">ST_Area</a></strong></li>
+              <li><strong><a href="http://postgis.net/docs/manual-2.1/ST_Length.html" target="_blank">ST_Length</a></strong></li>
+              <li><strong><a href="http://postgis.net/docs/manual-2.1/ST_Distance.html" target="_blank">ST_Distance</a></strong></li>
+              <li><strong><a href="http://postgis.net/docs/manual-2.1/ST_DWithin.html" target="_blank">ST_DWithin</a></strong></li>
+              <li><strong><a href="http://postgis.net/docs/manual-2.1/ST_MakeLine.html" target="_blank">ST_Makeline</a></strong></li>
+              <li><strong><a href="http://postgis.net/docs/manual-2.1/ST_StartPoint.html" target="_blank">ST_StartPoint</a></strong></li>
+              <li><strong><a href="http://postgis.net/docs/manual-2.1/ST_EndPoint.html" target="_blank">ST_EndPoint</a></strong></li>
+              <li><strong><a href="http://postgis.net/docs/manual-2.1/ST_LineMerge.html" target="_blank">ST_LineMerge</a></strong></li>
+              <li><strong><a href="http://postgis.net/docs/manual-2.1/ST_Union.html" target="_blank">ST_Union</a></strong></li>
+            </ul>
+          </section>
+
+          <section>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT SUM (ST_Area(the_geom)) FROM kraje;
+            </code></pre></div>
+            <h3 class="fragment">9.84435847853486</h3>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT SUM(ST_Area(ST_Transform(the_geom,31467))) FROM kraje;
+            </code></pre></div>
+            <h3 class="fragment">79352702971.7372</h3>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT SUM (ST_Area(the_geom::geography)) FROM kraje;
+            </code></pre></div>
+            <h3 class="fragment">78922129910.3022</h3>
+          </section>
+
+        </section>
+
+        <section>
+
+          <section>
+            <h2>DIY - Do It Yourself</h2>
+          </section>
+
+          <section>
+            <h2>Úkol 1</h2>
+            <ol>
+            	<li><span>Jakou plochu zabírají všechny budovy v Jihomoravském kraji?</span></li>
+            	<li><span>Jak dlouhé jsou všechny vodní toky v Jihomoravském kraji?</span></li>
+            	<li><span>Jaká zástavba se v Jihomoravském kraji objevuje nejvíce? Jakou zabírá plochu?</span></li>
+            	<li><span>Jaké vodní toky jsou v Jihomoravském kraji nejdelší?</span></li>
+            	<li><span>Vyberte domy, které jsou ve vzdálenosti 500 m od Semilassa. Zobrazte si je v QGISu.</span></li>
+            	<li><span>Spočítejte koeficient křivolakosti Litavy a Moravy.</span></li>
+            </ol>
+          </section>
+
+          <section>
+            <h2>Řešení</h2>
+            <div class=''><pre><code data-trim>
+SELECT SUM(ST_Area(geom)) FROM buildings_jm;
+
+SELECT SUM(ST_Length(geom)) FROM waterways_jm;
+
+SELECT type, SUM(ST_Area(geom)) / 1000000 AS area
+    FROM buildings_jm
+    WHERE type IS NOT NULL
+    GROUP BY type
+    ORDER BY area DESC;
+
+SELECT name, ST_Length(geom) / 1000 AS length
+    FROM waterways_jm
+    ORDER BY length DESC
+    LIMIT 10;
+
+SELECT b.* FROM buildings_jm AS b
+    JOIN buildings_jm b2 ON ST_Distance(b.geom, b2.geom) <= 500
+    WHERE b2.name = 'Semilasso';
+
+// nebo
+
+SELECT b.* FROM buildings_jm AS b
+    JOIN buildings_jm b2 ON ST_DWithin(b.geom, b2.geom, 500)
+    WHERE b2.name = 'Semilasso';
+
+SELECT
+    name, ST_Length(geom) AS length, ST_Length(ST_MakeLine(ST_StartPoint(geom), ST_EndPoint(geom))) AS line,
+    ST_Length(geom)/ST_Length(ST_MakeLine(ST_StartPoint(geom), ST_EndPoint(geom))) AS idx
+    FROM waterways_jm WHERE name = 'Litava';
+
+WITH morava AS (
+    SELECT name, ST_LineMerge(ST_Union(geom)) AS geom
+    FROM waterways_jm
+    WHERE name = 'Morava'
+    GROUP BY name
+)
+SELECT
+    name,
+    ST_Length(geom) AS length,
+    ST_Length(ST_MakeLine(ST_StartPoint(geom), ST_EndPoint(geom))) AS line,
+    ST_Length(geom) / ST_Length(ST_MakeLine(ST_StartPoint(geom), ST_EndPoint(geom))) AS idx
+    FROM morava;
+            </code></pre></div>
+          </section>
+
+        </section>
+
+        <section>
+            <h1>Děkuji za pozornost</h1>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="/lib/js/head.min.js"></script>
+    <script src="/js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in //css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '../plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+          //{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Lecture 1 - Z3104 GEODATABÁZE</title>
+
+		<meta name="description" content="Z3104 Geodatabáze - materiály ">
+		<meta name="author" content="Pavel Grochal">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="/css/bootstrap.dark.min.css" id="theme">
+		<link rel="stylesheet" href="/css/reveal.min.css">
+		<link rel="stylesheet" href="/css/theme/darkless.css" id="theme">
+		<link rel="stylesheet" href="/css/reveal.custom.css">
+
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="/lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+					<h1>Lecture 1</h1>
+					<h3>Z3104 GEODATABÁZE</h3>
+				</section>
+
+				<section>
+					<h2>Obsah</h2>
+					<ul>
+						<li>Nudná teorie</li>
+						<ul>
+							<li>Databáze</li>
+							<li>Tabulka</li>
+							<li>Primární klíč</li>
+							<li>Integrita DB</li>
+							<li>Kardinalita</li>
+							<li>Datové typy</li>
+							<li>Normální formy</li>
+						</ul>
+						<li>Nudná praxe</li>
+						<ul>
+							<li>Instalace PostgreSQL a pgAdmin III</li>
+						</ul>
+						<li>Zábavná praxe</li>
+					</ul>
+				</section>
+
+				<section>
+					<section>
+						<h2>Databáze</h2>
+					</section>
+
+					<section>
+						<p>
+							Uspořádaná množina informací.
+						</p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Relační databáze</h2>
+					</section>
+
+					<section>
+						<p>
+							Databáze využívající principů relační algebry (relačního kalkulu).
+						</p>
+						<aside class="notes">
+							Sjednocení, průnik, rozdíl, kartézský součin, projekce, selekce, spojení(join)...
+						</aside>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Tabulka</h2>
+					</section>
+
+					<section>
+						<table class='table table-bordered table-striped'>
+							<thead>
+								<tr>
+									<th>
+										Studenti
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr><td>UČO</td></tr>
+								<tr><td>Jméno</td></tr>
+								<tr><td>Příjmení</td></tr>
+								<tr><td>Věk</td></tr>
+							</tbody>
+						</table>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Záznam v tabulce</h2>
+					</section>
+
+					<section>
+						<table class='table table-bordered table-striped'>
+							<thead>
+								<tr>
+									<th>
+										UČO
+									</th>
+									<th>
+										Jméno
+									</th>
+									<th>
+										Příjmení
+									</th>
+									<th>
+										Věk
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>1234567</td>
+									<td>Tomáš</td>
+									<td>Novák</td>
+									<td>20</td>
+								</tr>
+								<tr class='danger'>
+									<td>6543210</td>
+									<td>Jan</td>
+									<td>Holý</td>
+									<td>35</td>
+								</tr>
+								<tr>
+									<td>1648721</td>
+									<td>Lukáš</td>
+									<td>Zavadil</td>
+									<td>22</td>
+								</tr>
+							</tbody>
+						</table>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Primární klíč (Primary Key)</h2>
+					</section>
+
+					<section>
+						<p>
+							Unikátní hodnota, která jednoznačně identifikuje záznam v tabulce.
+						</p>
+						<table class='table table-bordered table-striped'>
+							<thead>
+								<tr>
+									<th>
+										UČO
+									</th>
+									<th>
+										Jméno
+									</th>
+									<th>
+										Příjmení
+									</th>
+									<th>
+										Věk
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td class='danger'>1234567</td>
+									<td>Tomáš</td>
+									<td>Novák</td>
+									<td>20</td>
+								</tr>
+								<tr>
+									<td class='danger'>6543210</td>
+									<td>Jan</td>
+									<td>Holý</td>
+									<td>35</td>
+								</tr>
+								<tr>
+									<td class='danger'>1648721</td>
+									<td>Lukáš</td>
+									<td>Zavadil</td>
+									<td>22</td>
+								</tr>
+							</tbody>
+						</table>
+					</section>
+
+					<section>
+						<h2>Cizí klíč (Foreign Key)</h2>
+						<aside class="notes">
+							Odkaz na Primární klíč záznamu v jiné tabulce.
+						</aside>
+					</section>
+
+
+				</section>
+
+				<section>
+					<section>
+						<h2>Integrita databáze <small>(Integrita dat)</small></h2>
+					</section>
+
+					<section>
+						<h2>ACID</h2>
+						<ul>
+							<li><b>A</b>tomic</li>
+							<li><b>C</b>onsistent</li>
+							<li><b>I</b>solated</li>
+							<li><b>D</b>urable</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Integritní omezení</h2>
+					</section>
+
+					<section>
+						<p>
+							Slouží k definování pravidel, která omezují či definují způsob použití databáze/tabulek.
+						</p>
+						<ul>
+							<li>Datové typy</li>
+							<li>Primární klíč</li>
+							<li>UNIQUE</li>
+							<li>NOT NULL</li>
+							<li>CHECK</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Kardinalita <small>(Mohutnost)</small></h2>
+					</section>
+
+					<section>
+						<p>
+							Tabulky mohou mít souvislost či vztah.
+						</p>
+					</section>
+
+					<section>
+						<h2>Značení kardinality</h2>
+						<div>
+							<img src="/sql/img/card_notation.png" alt="Cardinality notation" style='background: none repeat scroll 0% 0% rgba(255, 255, 255, 1);' />
+						</div>
+					</section>
+
+					<section>
+						<h2>Kardinalita '<b>1:1</b>'</h2>
+						<div class='fragment'>
+							<img src="/sql/img/card11.png" alt="Cardinality notation" style='background: none repeat scroll 0% 0% rgba(255, 255, 255, 1);' />
+						</div>
+						<aside class='notes'>
+							Rozšíření tabulky, kterou nemůžeme ovlivnit.
+							Př.: řidič-automobil. V jednu chvíli (diskrétní časový okamžik) řídí jedno auto právě jeden řidič a zároveň jedno auto je řízeno právě jedním řidičem.
+						</aside>
+					</section>
+
+					<section>
+						<h2>Kardinalita '<b>1:M</b>'</h2>
+						<div class='fragment' >
+							<img src="/sql/img/card1M.png" alt="Cardinality notation" style='background: none repeat scroll 0% 0% rgba(255, 255, 255, 1);' />
+						</div>
+					</section>
+
+					<section>
+						<h2>Kardinalita '<b>M:N</b>'</h2>
+						<div class='fragment'>
+							<img src="/sql/img/cardMN.png" alt="Cardinality notation" style='background: none repeat scroll 0% 0% rgba(255, 255, 255, 1);' />
+						</div>
+					</section>
+
+				</section>
+
+				<section>
+
+					<section>
+						<h2>Datové typy</h2>
+					</section>
+
+					<section>
+						<ul>
+							<li>Numerické</li>
+							<li>Znakové</li>
+							<li>Bool</li>
+							<li>Datum/čas</li>
+							<li>Geometrické</li>
+							<li>a další...</li>
+						</ul>
+					</section>
+
+					<section>
+						<h2>Numerické</h2>
+						<table class='table table-bordered table-striped'>
+							<tbody>
+									<tr><td><b>smallint</b></td><td><small>-32768 to +32767</small></td></tr>
+									<tr><td><b>integer</b></td><td><small>-2147483648 to +2147483647</small></td></tr>
+									<tr><td><b>bigint</b></td><td><small>-9223372036854775808 to +9223372036854775807</small></td></tr>
+									<tr><td><b>real</b></td><td><small>6 decimal digits precision</small></td></tr>
+									<tr><td><b>double</b></td><td><small>15 decimal digits precision</small></td></tr>
+							</tbody>
+						</table>
+					</section>
+
+					<section>
+						<h2>Znakové</h2>
+						<table class='table table-bordered table-striped'>
+							<tbody>
+									<tr><td><b>character varying(n)</b></td></tr>
+									<tr><td><b>varchar(n)</b></td></tr>
+									<tr><td><b>character(n)</b></td></tr>
+									<tr><td><b>char(n)</b></td></tr>
+									<tr><td><b>text</b></td></tr>
+							</tbody>
+						</table>
+					</section>
+
+					<section>
+						<h2>Bool</h2>
+						<table class='table table-bordered table-striped'>
+							<tbody>
+									<tr><td><b>boolean</b></td><td>TRUE / FALSE</td></tr>
+							</tbody>
+						</table>
+					</section>
+
+					<section>
+						<h2>Datum/čas</h2>
+						<table class='table table-bordered table-striped'>
+							<tbody>
+									<tr><td><b>timestamp</b></td></tr>
+									<tr><td><b>date</b></td></tr>
+									<tr><td><b>time</b></td></tr>
+							</tbody>
+						</table>
+						<aside class="notes">
+							V DB uloženo jako mikrosekundy.
+						</aside>
+					</section>
+
+					<section>
+						<h2>Geometrické</h2>
+						<table class='table table-bordered table-striped'>
+							<tbody>
+								<tr><td><b>point</b></td></tr>
+								<tr><td><b>line</b></td></tr>
+								<tr><td><b>box</b></td></tr>
+								<tr><td><b>path</b></td></tr>
+								<tr><td><b>polygon</b></td></tr>
+								<tr><td><b>circle</b></td></tr>
+							</tbody>
+						</table>
+					</section>
+
+					<section>
+						<h2>NULL</h2>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Normální formy</h2>
+						<aside class="notes">
+							0.NF - zmínit, 5.NF - zmínit
+						</aside>
+					</section>
+
+					<section>
+						<h2>1. normální forma</h2>
+						<p>
+							Datový záznam je v 1. NF, když jsou všechny jeho komponenty atomické (tj. atributy nejsou složené datové struktury).
+						</p>
+						<p>
+							Čti: Co položka to jeden údaj. Ne více informací v jedné položce.
+						</p>
+					</section>
+
+					<section>
+						<h2>1. normální forma - příklad</h2>
+						<div style='float:left; width:45%; margin-right:20px;'>
+							<table class='table table-bordered table-stripped table-condensed'>
+								<thead>
+									<tr><th class='danger'>Zakazník</th></tr>
+								</thead>
+								<tbody>
+									<tr><td>id (PK)</td></tr>
+									<tr><td>jmeno</td></tr>
+									<tr><td>prijmeni</td></tr>
+									<tr><td>adresa</td></tr>
+								</tbody>
+							</table>
+						</div>
+						<div style='float:left; width:45%;' class='fragment'>
+							<table class='table table-bordered table-stripped table-condensed'>
+								<thead>
+									<tr><th class='success'>Zakazník</th></tr>
+								</thead>
+								<tbody>
+									<tr><td>id (PK)</td></tr>
+									<tr><td>jmeno</td></tr>
+									<tr><td>prijmeni</td></tr>
+									<tr><td>ulice</td></tr>
+									<tr><td>mesto</td></tr>
+									<tr><td>psc</td></tr>
+								</tbody>
+							</table>
+						</div>
+					</section>
+
+					<section>
+						<h2>2. normální forma</h2>
+						<p>
+							Datový záznam je v 2. NF, pokud je v 1. NF a každá neklíčová položka (atribut) v záznamu je plně funkčně závislá na každém kandidátním klíči.
+						</p>
+						<p>
+							Čti: Každý atribut souvisí s celým kandidátním (primárním) klíčem. Ne pouze s jeho součástí.
+						</p>
+					</section>
+
+					<section>
+						<h2>2. normální forma - příklad</h2>
+						<div style='float:left; width:45%; margin-right:20px;'>
+							<table class='table table-bordered table-stripped table-condensed'>
+								<thead>
+									<tr><th class='danger'>Hodnoceni studenta</th></tr>
+								</thead>
+								<tbody>
+									<tr><td>uco (PK)</td></tr>
+									<tr><td>kod_predmetu (PK)</td></tr>
+									<tr><td>znamka</td></tr>
+									<tr><td>nazev predmetu</td></tr>
+								</tbody>
+							</table>
+						</div>
+						<div style='float:left; width:45%;' class='fragment'>
+							<table class='table table-bordered table-stripped table-condensed'>
+								<thead>
+									<tr><th class='success'>Hodnoceni studenta</th></tr>
+								</thead>
+								<tbody>
+									<tr><td>uco (PK)</td></tr>
+									<tr><td>kod_predmetu (PFK)</td></tr>
+									<tr><td>znamka</td></tr>
+								</tbody>
+							</table>
+							<hr>
+							<table class='table table-bordered table-stripped table-condensed'>
+								<thead>
+									<tr><th class='success'>Predmet</th></tr>
+								</thead>
+								<tbody>
+									<tr><td>kod_predmetu (PK)</td></tr>
+									<tr><td>nazev_predmetu</td></tr>
+								</tbody>
+							</table>
+						</div>
+					</section>
+
+					<section>
+						<h2>3. normální forma</h2>
+						<p>
+							Datový záznam je ve 3.NF, pokud je ve 2.NF a každý atribut je funkčně závislý na klíči a pouze na klíči.
+						</p>
+						<p>
+							Čti: Neexistuje atribut, který není závislý na primárním klíči.
+						</p>
+					</section>
+
+					<section>
+						<h2>3. normální forma - příklad</h2>
+						<div style='float:left; width:45%; margin-right:20px;'>
+							<table class='table table-bordered table-stripped table-condensed'>
+								<thead>
+									<tr><th class='danger'>Kniha</th></tr>
+								</thead>
+								<tbody>
+									<tr><td>isbn (PK)</td></tr>
+									<tr><td>nazev</td></tr>
+									<tr><td>autor_ilustrace</td></tr>
+									<tr><td>vek_autora</td></tr>
+								</tbody>
+							</table>
+						</div>
+						<div style='float:left; width:45%;' class='fragment'>
+							<table class='table table-bordered table-stripped table-condensed'>
+								<thead>
+									<tr><th class='success'>Kniha</th></tr>
+								</thead>
+								<tbody>
+									<tr><td>isbn (PK)</td></tr>
+									<tr><td>nazev</td></tr>
+									<tr><td>id_autora</td></tr>
+								</tbody>
+							</table>
+							<hr>
+							<table class='table table-bordered table-stripped table-condensed'>
+								<thead>
+									<tr><th class='success'>Autor</th></tr>
+								</thead>
+								<tbody>
+									<tr><td>id (PK)</td></tr>
+									<tr><td>vek_autora</td></tr>
+								</tbody>
+							</table>
+						</div>
+					</section>
+
+					<section>
+						<h2>4. normální forma</h2>
+						<p>
+							Datový záznam je ve 4.NF, pokud je ve 3.NF a v datových záznamech nejsou podmíněné funkční závislosti.
+						</p>
+						<p>
+							Čti: Neobsahuje hodnoty NULL.
+						</p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>SQL <small>(<b>S</b>tructured <b>Q</b>uery <b>L</b>anguage)</small></h2>
+					</section>
+
+					<section>
+						<h2>Databázové systémy</h2>
+						<div style='float:left; width:45%;'>
+							<ul>
+								<li>MySQL</li>
+								<li>PostgreSQL</li>
+								<li>SQLite</li>
+							</ul>
+						</div>
+						<div style='float:left; width:45%;'>
+							<ul>
+								<li>Oracle</li>
+								<li>MS-SQL</li>
+								<li>DB2</li>
+							</ul>
+						</div>
+						<div>
+							<a href="http://www.postgresql.org/docs/9.3/interactive/index.html">
+								http://www.postgresql.org/docs/9.3/interactive/index.html
+							</a>
+						</div>
+					</section>
+
+					<section>
+						<h2>Instalace PostgreSQL a pgAdmin III</h2>
+						<a href="http://www.postgresql.org/download/">http://www.postgresql.org/download/</a>
+					</section>
+
+					<section>
+						<h2>Přihlášení k databázi - pgAdmin III</h2>
+						<ol>
+							<li>Server Groups &rarr; Servers &rarr; postgres (localhost:5432)</li>
+							<li>Zadat jméno a heslo</li>
+							<li>Vytvořit databázi - pojmenovat podle svého UČO</li>
+							<li>Tabulky jsou v: Schamas &rarra; public &rarr; Tables</li>
+							<li>SQL příkazy je možné zadávat: Tools &rarr; Query tool (Ctrl + E) </li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Základní příkazy SQL</h2>
+					</section>
+
+					<section>
+						<h2>CREATE TABLE</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE nazev_tabulky
+	(
+	 nazev_sloupce INT,
+	 nazev_sloupce_2 VARCHAR(10)
+	);
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>CREATE TABLE - příklad</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE zamestnanci
+    (prijmeni TEXT, mesto VARCHAR(10), vek INT);
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>Tabulka po vytvoření</h2>
+						<table class='table table-bordered table-striped'>
+							<thead>
+								<tr>
+									<th>prijmeni (TEXT)</th>
+									<th>mesto (VARCHAR(10))</th>
+									<th>vek (INT)</th>
+								</tr>
+							</thead>
+						</table>
+					</section>
+
+					<section>
+						<h2>ALTER TABLE</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE nazev_tabulky
+ ADD COLUMN jmeno_sloupce TEXT;
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>ALTER TABLE - příklad</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE zamestnanci ADD COLUMN jmeno TEXT;
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>Tabulka po změně</h2>
+						<table class='table table-bordered table-striped'>
+							<thead>
+								<tr>
+									<th>jmeno (TEXT)</th>
+									<th>prijmeni (TEXT)</th>
+									<th>mesto (VARCHAR(10))</th>
+									<th>vek (INT)</th>
+								</tr>
+							</thead>
+						</table>
+					</section>
+
+					<section>
+						<h2>INSERT</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+INSERT INTO nazev_tabulky
+  (sloupec1, sloupec2, sloupec3)
+VALUES
+  (hodnota1, hodnote2, hodnota2);
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>INSERT - příklad</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+INSERT INTO zamestnanci (jmeno, prijmeni, mesto, vek)
+    VALUES ('Jan', 'Novak', 'Brno', 62);
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>Tabulka po vložení</h2>
+						<table class='table table-bordered table-striped'>
+							<thead>
+								<tr>
+									<th>jmeno (TEXT)</th>
+									<th>prijmeni (TEXT)</th>
+									<th>mesto (VARCHAR(10))</th>
+									<th>vek (INT)</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>Jan</td>
+									<td>Novak</td>
+									<td>Brno</td>
+									<td>62</td>
+								</tr>
+							</tbody>
+						</table>
+					</section>
+
+					<section>
+						<h2>SELECT</h2>
+						<div class='big'><pre><code data-trim contenteditable>
+SELECT sloupec1, sloupec2 FROM nazev_tabulky;
+						</code></pre></div>
+						<div class='big fragment'><pre><code data-trim contenteditable>
+SELECT * FROM nazev_tabulky;
+						</code></pre></div>
+						<div class='big fragment'><pre><code data-trim contenteditable>
+SELECT sloupec1, sloupec2 FROM nazev_tabulky WHERE sloupec1 = hodnota1;
+						</code></pre></div>
+					</section>
+
+					<section>
+						<h2>SELECT - příklad</h2>
+						<div class='big fragment'><pre><code data-trim contenteditable>
+SELECT jmeno FROM zamestnanci;
+						</code></pre></div>
+						<div class='big fragment'><pre><code data-trim contenteditable>
+SELECT * FROM zamestnanci;
+						</code></pre></div>
+						<div class='big fragment'><pre><code data-trim contenteditable>
+SELECT jmeno, vek FROM zamestnanci WHERE prijmeni = 'Novak';
+						</code></pre></div>
+					</section>
+
+				</section>
+
+				<section>
+						<h1>Děkuji za pozornost</h1>
+				</section>
+
+
+			</div>
+
+		</div>
+
+		<script src="/lib/js/head.min.js"></script>
+		<script src="/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in //css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: '../lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '../plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '../plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '../plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: '../plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+					//{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

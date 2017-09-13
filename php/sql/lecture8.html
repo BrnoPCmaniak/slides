@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Lecture 8 - Z3104 GEODATABÁZE</title>
+
+    <meta name="description" content="Z3104 Geodatabáze - materiály ">
+    <meta name="author" content="Pavel Grochal, Michal Zimmermann">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="/css/bootstrap.dark.min.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.min.css">
+    <link rel="stylesheet" href="/css/theme/darkless.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.custom.css">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="/lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h1>Lecture 8</h1>
+          <h3>Z3104 GEODATABÁZE</h3>
+        </section>
+
+        <section>
+          <h2>Obsah</h2>
+          <ul>
+            <li>Teorie v praxi aneb PostGIS</li>
+            <li>A co QGIS?</li>
+            <li>Indexy</li>
+          </ul>
+        </section>
+
+        <section>
+          <section>
+            <h2>PostGIS</h2>
+            <p>
+              <a href="http://postgis.net/" target="_blank">http://postgis.net/</a>
+            </p>
+            <h3>
+              Prostorová nadstavba PostgreSQL
+            </h3>
+            <br>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+CREATE EXTENSION postgis;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>Co to umí?</h2>
+            <ul>
+              <li>vektory</li>
+              <li>rastry</li>
+              <li>topologie</li>
+              <li>routování</li>
+              <li>projekce</li>
+              <li>TIN</li>
+              <li>3D data</li>
+              <li>výstupy</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2><a href="http://www.opengeospatial.org/standards/sfs" target="_blank">Simple Features Access</a></h2>
+            <h4><b>standards for the win</b></h4>
+          </section>
+
+          <section>
+            <h2>A co Křovák?</h2>
+            <br>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT * FROM spatial_ref_sys WHERE srid = 5514;
+            </code></pre></div>
+            <br>
+            <a class="fragment" href="http://epsg.io/5514.sql" target="_blank">http://epsg.io/5514.sql</a>
+          </section>
+
+          <section>
+            <h2>DATA, DATA, DATA!</h2>
+            <p>
+              INSERT, COPY, shp2pgsql
+            </p>
+            <br>
+            <h4>
+              geometry (rovina) × geography (sféra)
+            </h4>
+          </section>
+
+          <section>
+            <div>
+              <div class='' style="width:49%; display:inline-block;"><pre><code data-trim contenteditable>
+CREATE TABLE cities (
+  name varchar PRIMARY KEY,
+  x float NOT NULL,
+  y float NOT NULL
+);
+              </code></pre></div>
+              <p style="width:49%; display:inline-block;">
+                úplně obyčejná tabulka
+              </p>
+            </div>
+
+            <div class="fragment">
+              <div class='' style="width:49%; display:inline-block;"><pre><code data-trim contenteditable>
+INSERT INTO cities (name, x, y)
+  VALUES  ('Brno', 16.62, 49.2);
+              </code></pre></div>
+              <p style="width:49%; display:inline-block;">
+                s úplně obyčejným záznamem
+              </p>
+            </div>
+
+            <div class="fragment">
+              <div class='' style=""><pre><code data-trim contenteditable>
+SELECT AddGeometryColumn('cities', 'geom', 4326, 'point', 2); // #1
+ALTER TABLE cities ADD COLUMN geom geometry(Point,4326); // #2
+              </code></pre></div>
+              <p>
+                už vůbec není obyčejná
+              </p>
+            </div>
+            <div class="fragment">
+              <div class='big'><pre><code data-trim contenteditable>
+  UPDATE cities
+    SET geom = ST_MakePoint(x, y);
+              </code></pre></div>
+              <p>
+                proč to sakra nefunguje?
+              </p>
+            </div>
+          </section>
+
+          <section>
+            <h2>Update</h2>
+            <div class='big'><pre>ERROR:  Geometry SRID (0) does not match column SRID (4326)</pre></div>
+            <br>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+UPDATE cities
+  SET geom = ST_SetSRID(ST_MakePoint(x, y), 4326);
+            </code></pre></div>
+          </section>
+
+          <section>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT geom FROM cities; // wtf?
+
+SELECT ST_AsText(geom) FROM cities; // aha!
+
+SELECT ST_AsGML(geom) FROM cities; // wtf?
+
+SELECT ST_AsGeoJson(geom) FROM cities; // wtf?
+
+SELECT ST_AsLatLonText(geom) FROM cities; // aha!
+            </code></pre></div>
+            <h3>
+              Hurá, ale... :-/
+            </h3>
+          </section>
+
+        </section>
+
+        <section>
+
+          <section>
+            <h2>A co QGIS?</h2>
+          </section>
+
+          <section>
+            <h2>Iniciální data</h2>
+            <div class="fragment">
+              <a href="/sql/txt/cities.csv">stáhnout cities.csv</a>
+              <div class='big'><pre><code data-trim contenteditable>
+TRUNCATE TABLE cities;
+
+COPY cities (name,x,y) FROM cities.csv WITH delimiter AS';'
+
+SELECT * FROM cities;
+              </code></pre></div>
+            </div>
+            <a class="fragment" href="/sql/txt/insert.sql">stáhnout insert.sql</a>
+            <div class="fragment">
+              <p>
+                A co geometrie?
+              </p>
+              <div class='big'><pre><code data-trim contenteditable>
+UPDATE cities SET
+  geom = ST_SetSRID(ST_MakePoint(x, y), 4326);
+              </code></pre></div>
+            </div>
+          </section>
+
+          <section>
+            <h2>Jak to zobrazit v QGISu?</h2>
+            <ul>
+              <li>QGIS -> SPIT (Shapefile import) plugin</li>
+              <li>založit připojení a otestovat</li>
+              <li>Menu Databáze -> Správce databází</li>
+              <li>Vybrat PostGIS -> název db -> tabulka cities</li>
+              <li>pravé myšítko -> přidat do mapového okna</li>
+            </ul>
+          </section>
+
+        </section>
+
+        <section>
+
+          <section>
+            <h2>Indexování</h2>
+            <ul>
+              <li>Jak vůbec fungují prostorové dotazy?</li>
+              <li>Dají se zrychlovat, nebo ne?</li>
+              <li>Dají se napsat tak, že vám zničí počítač?</li>
+              <li>Co je to R-strom?</li>
+              <li>Proč je důležité používat prostorové indexy?</li>
+            </ul>
+            <br>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE INDEX cities_idx ON cities USING GIST (geom);
+            </code></pre></div>
+          </section>
+
+        </section>
+
+        <section>
+            <h1>Děkuji za pozornost</h1>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="/lib/js/head.min.js"></script>
+    <script src="/js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in //css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '../plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+          //{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

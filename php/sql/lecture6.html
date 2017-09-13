@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Lecture 6 - Z3104 GEODATABÁZE</title>
+
+    <meta name="description" content="Z3104 Geodatabáze - materiály ">
+    <meta name="author" content="Pavel Grochal">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="/css/bootstrap.dark.min.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.min.css">
+    <link rel="stylesheet" href="/css/theme/darkless.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.custom.css">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="/lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h1>Lecture 6</h1>
+          <h3>Z3104 GEODATABÁZE</h3>
+        </section>
+
+        <section>
+          <h2>Obsah</h2>
+          <ul>
+            <li>Opakování</li>
+            <li>Trocha nové teorie</li>
+            <li>DIY - Do It Yourself</li>
+          </ul>
+        </section>
+
+        <section>
+          <section>
+            <h2>Opakování</h2>
+          </section>
+
+          <section>
+            <h2>Kombinování dat z více tabulek</h2>
+            <ul>
+              <li>CROSS JOIN (Kartézský součin)</li>
+              <li>INNER JOIN</li>
+              <li>OUTER JOIN</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>CROSS JOIN</h2>
+            <h4>
+              Spojení dvou tabulek "každý s každým" <small>a.k.a. Beverly Hills</small>
+            </h4>
+          </section>
+
+          <section>
+            <h2>CROSS JOIN - příklad</h2>
+            <table style='font-size:0.7em; width:45%;float:left' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th colspan='3'>
+                    <b>Studenti</b>
+                  </th>
+                </tr>
+                <tr>
+                  <th>UČO</th>
+                  <th>Jmeno</th>
+                  <th>Prijmeni</th>
+                </tr>
+              </thead>
+              <tr>
+                <td>234</td>
+                <td>Jan</td>
+                <td>Novák</td>
+              </tr>
+              <tr>
+                <td>543</td>
+                <td>Tomáš</td>
+                <td>Holý</td>
+              </tr>
+            </table>
+
+            <table style='font-size:0.7em; width:45%; float:right' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th colspan='2'>
+                    <b>Barvy</b>
+                  </th>
+                </tr>
+                <tr>
+                  <th>Barva</th>
+                  <th>Cena</th>
+                </tr>
+              </thead>
+              <tr>
+                <td>červená</td>
+                <td>400</td>
+              </tr>
+              <tr>
+                <td>zelená</td>
+                <td>200</td>
+              </tr>
+              <tr>
+                <td>modrá</td>
+                <td>500</td>
+              </tr>
+            </table>
+
+          </section>
+          <section>
+            <h2>CROSS JOIN - příklad</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT * FROM studenti, barvy;
+            </code></pre></div>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT * FROM studenti CROSS JOIN barvy;
+            </code></pre></div>
+            <table style='font-size:0.7em;' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th>UČO</th>
+                  <th>Jmeno</th>
+                  <th>Prijmeni</th>
+                  <th>Barva</th>
+                  <th>Cena</th>
+                </tr>
+              </thead>
+              <tr>
+                <td>234</td>
+                <td>Jan</td>
+                <td>Novák</td>
+                <td>červená</td>
+                <td>400</td>
+              </tr>
+              <tr>
+                <td>543</td>
+                <td>Tomáš</td>
+                <td>Holý</td>
+                <td>červená</td>
+                <td>400</td>
+              </tr>
+              <tr>
+                <td>234</td>
+                <td>Jan</td>
+                <td>Novák</td>
+                <td>zelená</td>
+                <td>200</td>
+              </tr>
+              <tr>
+                <td>543</td>
+                <td>Tomáš</td>
+                <td>Holý</td>
+                <td>zelená</td>
+                <td>200</td>
+              </tr>
+              <tr>
+                <td>234</td>
+                <td>Jan</td>
+                <td>Novák</td>
+                <td>modrá</td>
+                <td>500</td>
+              </tr>
+              <tr>
+                <td>543</td>
+                <td>Tomáš</td>
+                <td>Holý</td>
+                <td>modrá</td>
+                <td>500</td>
+              </tr>
+            </table>
+          </section>
+
+          <section>
+            <h2>[INNER] JOIN</h2>
+            <h3 class='text-success'>Nejpoužívanější</h3>
+            <ul>
+              <li><b>INNER JOIN ON (TRUE)</b> je shodný s <b>CROSS JOIN</b></li>
+              <li>INNER JOIN navíc určuje podmínku výběru (které řádky zůstanou)</li>
+              <li>Vybere a spojí pouze ty řádky, které je schopen spárovat (viz příklad dále).</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>[INNER] JOIN - příklad</h2>
+            <table style='font-size:0.7em; width:45%; float:left' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th colspan='3'>
+                    <b>Autor</b>
+                  </th>
+                </tr>
+                <tr>
+                  <th>ID</th>
+                  <th>Jmeno</th>
+                  <th>Prijmeni</th>
+                </tr>
+              </thead>
+              <tr>
+                <td>888</td>
+                <td>Karel</td>
+                <td>Čapek</td>
+              </tr>
+              <tr>
+                <td>555</td>
+                <td>Terry</td>
+                <td>Pratchett</td>
+              </tr>
+              <tr>
+                <td>444</td>
+                <td>Josef</td>
+                <td>Lada</td>
+              </tr>
+            </table>
+            <table style='font-size:0.7em; width:45%; float:right' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th colspan='3'>
+                    <b>Kniha</b>
+                  </th>
+                </tr>
+                <tr>
+                  <th>ID</th>
+                  <th>Nazev</th>
+                  <th>Id_autora</th>
+                </tr>
+              </thead>
+              <tr>
+                <td>1</td>
+                <td>RUR</td>
+                <td>888</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Věc makropulos</td>
+                <td>888</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Barva kouzel</td>
+                <td>555</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Lehké fantastično</td>
+                <td>555</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Dobrý voják švejk</td>
+                <td>111</td>
+              </tr>
+            </table>
+          </section>
+
+          <section>
+            <h2>[INNER] JOIN - příklad</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT * FROM autor
+INNER JOIN kniha ON (autor.id = kniha.id_autora);
+            </code></pre></div>
+            <div><pre><code data-trim contenteditable>
+SELECT * FROM autor
+CROSS JOIN kniha WHERE autor.id = kniha.id_autora;
+            </code></pre></div>
+            <table style='font-size:0.7em;' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th>ID(autor)</th>
+                  <th>Jmeno</th>
+                  <th>Prijmeni</th>
+                  <th>ID(kniha)</th>
+                  <th>Název</th>
+                </tr>
+              </thead>
+              <tr>
+                <td>888</td>
+                <td>Karel</td>
+                <td>Čapek</td>
+                <td>1</td>
+                <td>RUR</td>
+              </tr>
+              <tr>
+                <td>888</td>
+                <td>Karel</td>
+                <td>Čapek</td>
+                <td>2</td>
+                <td>Věc makropulos</td>
+              </tr>
+              <tr>
+                <td>555</td>
+                <td>Terry</td>
+                <td>Pratchett</td>
+                <td>3</td>
+                <td>Barva kouzel</td>
+              </tr>
+              <tr>
+                <td>555</td>
+                <td>Terry</td>
+                <td>Pratchett</td>
+                <td>4</td>
+                <td>Lehké fantastično</td>
+              </tr>
+            </table>
+
+          </section>
+
+          <section>
+            <h2>[OUTER] JOIN</h2>
+            <ul>
+              <li>LEFT [OUTER] JOIN</li>
+              <li>RIGHT [OUTER] JOIN</li>
+              <li>FULL [OUTER] JOIN</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>LEFT [OUTER] JOIN</h2>
+            <p>
+              Vybere všechny záznamy z "LEVÉ" tabulky a přiřadí záznamy, které může. Ke zbylým záznamům přiřadí NULL.
+            </p>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT * FROM autor
+LEFT OUTER JOIN kniha ON (autor.id = kniha.id_autora);
+            </code></pre></div>
+            <table style='font-size:0.7em;' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th>ID(autor)</th>
+                  <th>Jmeno</th>
+                  <th>Prijmeni</th>
+                  <th>ID(kniha)</th>
+                  <th>Název</th>
+                </tr>
+              </thead>
+              <tr>
+                <td>888</td>
+                <td>Karel</td>
+                <td>Čapek</td>
+                <td>1</td>
+                <td>RUR</td>
+              </tr>
+              <tr>
+                <td>888</td>
+                <td>Karel</td>
+                <td>Čapek</td>
+                <td>2</td>
+                <td>Věc makropulos</td>
+              </tr>
+              <tr>
+                <td>555</td>
+                <td>Terry</td>
+                <td>Pratchett</td>
+                <td>3</td>
+                <td>Barva kouzel</td>
+              </tr>
+              <tr>
+                <td>555</td>
+                <td>Terry</td>
+                <td>Pratchett</td>
+                <td>4</td>
+                <td>Lehké fantastično</td>
+              </tr>
+              <tr class='danger'>
+                <td>444</td>
+                <td>Josef</td>
+                <td>Lada</td>
+                <td>NULL</td>
+                <td>NULL</td>
+              </tr>
+            </table>
+          </section>
+          <section>
+            <h2>RIGHT [OUTER] JOIN</h2>
+            <p>
+              Vybere všechny záznamy z "PRAVÉ" tabulky a přiřadí záznamy, které může. Ke zbylým záznamům přiřadí NULL.
+            </p>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT * FROM autor
+RIGHT OUTER JOIN kniha ON (autor.id = kniha.id_autora);
+            </code></pre></div>
+            <table style='font-size:0.7em;' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th>ID(autor)</th>
+                  <th>Jmeno</th>
+                  <th>Prijmeni</th>
+                  <th>ID(kniha)</th>
+                  <th>Název</th>
+                </tr>
+              </thead>
+              <tr>
+                <td>888</td>
+                <td>Karel</td>
+                <td>Čapek</td>
+                <td>1</td>
+                <td>RUR</td>
+              </tr>
+              <tr>
+                <td>888</td>
+                <td>Karel</td>
+                <td>Čapek</td>
+                <td>2</td>
+                <td>Věc makropulos</td>
+              </tr>
+              <tr>
+                <td>555</td>
+                <td>Terry</td>
+                <td>Pratchett</td>
+                <td>3</td>
+                <td>Barva kouzel</td>
+              </tr>
+              <tr>
+                <td>555</td>
+                <td>Terry</td>
+                <td>Pratchett</td>
+                <td>4</td>
+                <td>Lehké fantastično</td>
+              </tr>
+              <tr class='danger'>
+                <td>NULL</td>
+                <td>NULL</td>
+                <td>NULL</td>
+                <td>5</td>
+                <td>Dobrý voják Švejk</td>
+              </tr>
+            </table>
+          </section>
+          <section>
+            <h2>FULL [OUTER] JOIN</h2>
+            <p>
+              Vybere všechny záznamy z "PRAVÉ" i "LEVÉ" tabulky a přiřadí záznamy, které může. Ke zbylým záznamům přiřadí NULL.
+            </p>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT * FROM autor
+FULL OUTER JOIN kniha ON (autor.id = kniha.id_autora);
+            </code></pre></div>
+            <table style='font-size:0.7em;' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th>ID(autor)</th>
+                  <th>Jmeno</th>
+                  <th>Prijmeni</th>
+                  <th>ID(kniha)</th>
+                  <th>Název</th>
+                </tr>
+              </thead>
+              <tr>
+                <td>888</td>
+                <td>Karel</td>
+                <td>Čapek</td>
+                <td>1</td>
+                <td>RUR</td>
+              </tr>
+              <tr>
+                <td>888</td>
+                <td>Karel</td>
+                <td>Čapek</td>
+                <td>2</td>
+                <td>Věc makropulos</td>
+              </tr>
+              <tr>
+                <td>555</td>
+                <td>Terry</td>
+                <td>Pratchett</td>
+                <td>3</td>
+                <td>Barva kouzel</td>
+              </tr>
+              <tr>
+                <td>555</td>
+                <td>Terry</td>
+                <td>Pratchett</td>
+                <td>4</td>
+                <td>Lehké fantastično</td>
+              </tr>
+              <tr class='danger'>
+                <td>444</td>
+                <td>Josef</td>
+                <td>Lada</td>
+                <td>NULL</td>
+                <td>NULL</td>
+              </tr>
+              <tr class='danger'>
+                <td>NULL</td>
+                <td>NULL</td>
+                <td>NULL</td>
+                <td>5</td>
+                <td>Dobrý voják Švejk</td>
+              </tr>
+            </table>
+          </section>
+
+          <section>
+            <h2>Vkládání cizích klíčů</h2>
+            <p>
+              Vložit cizí klíč (neboli referenci na jinou tabulku) je možné dvěma způsoby
+            </p>
+          </section>
+
+          <section>
+            <h2>Vkládání cizích klíčů - postupně</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT id FROM autor WHERE prijmeni = 'Pratchett';
+
+INSERT INTO kniha (id, nazev, id_autora) VALUES
+  (7, 'Čaroprávnost', ###),
+  (8, 'Soudné sestry', ###);
+  -- místo ### je nalezené ID z předchozího dotazu
+            </code></pre></div>
+            <p>
+              Tímto způsobem je možné zkontrolovat, že nám záznam skutečně vrací ID (resp. záznam),
+              který opravdu chceme.
+            </p>
+          </section>
+
+          <section>
+            <h2>Vkládání cizích klíčů - najednou</h2>
+            <div ><pre><code data-trim contenteditable>
+INSERT INTO kniha (id, nazev, id_autora) VALUES
+  (7, 'Čaroprávnost',  (SELECT id FROM autor WHERE prijmeni = 'Pratchett') ),
+  (8, 'Soudné sestry',  (SELECT id FROM autor WHERE prijmeni = 'Pratchett') );
+            </code></pre></div>
+            <p>
+              Pokud jsme si jisti, že nám záznam vybere správného autora, můžeme použít <b>vnořený</b> SELECT.
+            </p>
+          </section>
+
+        </section>
+
+        <section>
+
+          <section>
+            <h2>Trocha nové teorie</h2>
+          </section>
+
+          <section>
+            <h2>LIMIT / OFFSET</h2>
+            <p>
+              Omezí počet vypisovaných řádků.
+            </p>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT * FROM student LIMIT 20;
+            </code></pre></div>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT * FROM student LIMIT 20 OFFSET 20;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>DISTINCT</h2>
+            <h4><small><b>odlišný</b></small></h4>
+            <p>
+              Každá hodnota je ve výsledné tabulce zobrazena pouze jenou.
+            </p>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT DISTINCT vek FROM student;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>Agregace</h2>
+            <h4><small><b>seskupování</b></small></h4>
+            <p>
+              Agregační funkce slouží k získávání agregovaných údajů z tabulky.
+            </p>
+            <a href="http://www.postgresql.org/docs/9.1/static/functions-aggregate.html">http://www.postgresql.org/docs/9.1/static/functions-aggregate.html</a>
+          </section>
+
+          <section>
+            <h2>Student</h2>
+            <table style='font-size:0.7em;' class="table table-bordered table-striped table-condensed ">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Jmeno</th>
+                  <th>Prijmeni</th>
+                  <th>Vek</th>
+                </tr>
+              </thead>
+              <tr>
+                <td>1</td>
+                <td>Tomáš</td>
+                <td>Novák</td>
+                <td>20</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Jan</td>
+                <td>Tomek</td>
+                <td>20</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Jiří</td>
+                <td>Sobota</td>
+                <td>20</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Petr</td>
+                <td>Zajíc</td>
+                <td>35</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Josef</td>
+                <td>Starý</td>
+                <td>35</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Ondráš</td>
+                <td>Lodák</td>
+                <td>66</td>
+              </tr>
+            </table>
+            <aside class="notes">
+              CREATE TABLE student (id INT, jmeno VARCHAR(64), prijmeni VARCHAR(64), vek INT);
+              INSERT INTO student VALUES (1, 'Tomáš', 'Novák',20),(2,'Jan','Tomek',20),(3,'Jiří','Sobota',20),(4,'Petr','Zajíc',35),(5,'Josef', 'Starý',35),(6,'Ondráš','Lodák',60);
+            </aside>
+          </section>
+
+          <section>
+            <h2>Základní agregační funkce</h2>
+            <ul>
+              <li>AVG</li>
+              <li>MAX</li>
+              <li>MIN</li>
+              <li>SUM</li>
+              <li>COUNT</li>
+            </ul>
+          </section>
+
+
+          <section>
+            <h2>AVG</h2>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT AVG(vek) FROM student;
+            </code></pre></div>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT AVG(DISTINCT vek) FROM student;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>MAX</h2>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT MAX(vek) FROM student;
+            </code></pre></div>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT MAX(DISTINCT vek) FROM student;
+            </code></pre></div>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT vek FROM student ORDER BY vek DESC LIMIT 1;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>MIN</h2>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT MIN(vek) FROM student;
+            </code></pre></div>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT MIN(DISTINCT vek) FROM student;
+            </code></pre></div>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT vek FROM student ORDER BY vek ASC LIMIT 1;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>SUM</h2>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT SUM(vek) FROM student;
+            </code></pre></div>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT SUM(DISTINCT vek) FROM student;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>COUNT</h2>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT COUNT(vek) FROM student;
+            </code></pre></div>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT COUNT(DISTINCT vek) FROM student;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>Kombinace agregačních funkcí</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT COUNT(vek), AVG(vek), MIN(vek), MAX(vek), SUM(vek)
+  FROM student;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>Kombinace agregačních funkcí II</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT vek, COUNT(vek) FROM student;
+            </code></pre></div>
+            <p class='text-danger fragment'>
+ERROR:  column "student.vek" must appear in the GROUP BY clause or be used in an aggregate function
+LINE 1: SELECT vek, COUNT(vek) FROM student;
+            </p>
+          </section>
+
+          <section>
+            <h2>GROUP BY</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT vek, COUNT(vek) FROM student GROUP BY vek;
+            </code></pre></div>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT DISTINCT id_autora, COUNT(id_autora)
+  FROM kniha GROUP BY id_autora;
+            </code></pre></div>
+            <div class='big fragment'><pre><code data-trim contenteditable>
+SELECT autor.id, autor.jmeno, autor.prijmeni,
+  COUNT(kniha.id_autora) FROM kniha
+  FULL JOIN autor ON (kniha.id_autora = autor.id)
+  GROUP BY autor.id, autor.jmeno, autor.prijmeni;
+            </code></pre></div>
+          </section>
+
+
+
+        </section>
+
+        <section>
+
+          <section>
+            <h2>DIY - Do It Yourself</h2>
+          </section>
+
+          <section>
+            <h2>Iniciální data</h2>
+            <a href="/sql/txt/knihy.backup">ke stažení</a>
+            <ul>
+              <li>Pravým na databázi</li>
+              <li>Obnovit (restore)</li>
+              <li>Vybrat soubor</li>
+              <li>OK</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>ÚKOL 1 - opáčko z minula</h2>
+            <p>
+              Vyberte všechny autory, kteří nemají jméno (pouze příjmení).
+            </p>
+            <p>
+              Vypište 10 knih od Terryho Pratchetta a seřaďte je podle hodnocení vzestupně (od nejmenšího po největší).
+            </p>
+            <p>
+              Vypište všechny autory, jejichž knihy mají český i anglický název začínající na písmeno "h" a seřaďte je podle příjmení a jména.
+              Autoři se v záznamu budou vyskytovat maximálně jednou (DISTINCT).
+            </p>
+          </section>
+
+          <section>
+            <h2>ÚKOL 2 - Agregační funkce </h2>
+            <p>
+              Kolik autorů obsahuje databáze?
+            </p>
+            <p>
+              Kolik knih obsahuje databáze?
+            </p>
+            <p>
+              Jaké je nejvyšší hodnocení jedné z knih od George R.R. Martina
+            </p>
+            <p>
+              Jaké je průměrné hodnocení knih o Harrym Potterovi?
+            </p>
+            <p>
+              Vypište kolik knih napsali jednotliví autoři.
+            </p>
+            <p>
+              Seskupte počet knih podle jejich hodnocení. (Kolik knih má hodnocení 93%, kolik 94% atd...)
+            </p>
+            <p>
+              Kolik autorů (počet) napsalo knihy, které jsou hodnoceny na 94%?
+            </p>
+          </section>
+
+        </section>
+
+        <section>
+            <h1>Děkuji za pozornost</h1>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="/lib/js/head.min.js"></script>
+    <script src="/js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in //css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '../plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+          //{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>

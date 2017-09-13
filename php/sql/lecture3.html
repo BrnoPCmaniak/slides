@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Lecture 3 - Z3104 GEODATABÁZE</title>
+
+    <meta name="description" content="Z3104 Geodatabáze - materiály ">
+    <meta name="author" content="Pavel Grochal">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="/css/bootstrap.dark.min.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.min.css">
+    <link rel="stylesheet" href="/css/theme/darkless.css" id="theme">
+    <link rel="stylesheet" href="/css/reveal.custom.css">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="/lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h1>Lecture 3</h1>
+          <h3>Z3104 GEODATABÁZE</h3>
+        </section>
+
+        <section>
+          <h2>Obsah</h2>
+          <ul>
+            <li>Opakování</li>
+            <li>Trocha nové teorie</li>
+            <li>DIY - Do It Yourself</li>
+          </ul>
+        </section>
+
+        <section>
+          <section>
+            <h2>Opakování</h2>
+          </section>
+
+          <section>
+            <h2>DROP TABLE</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+DROP TABLE nazev_tabulky;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>DELETE FROM</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+DELETE FROM nazev_tabulky
+    WHERE podminka;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>UPDATE</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+UPDATE nazev_tabulky
+    SET nazev_sloupce = hodnota
+    WHERE podminka;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>Přidání primárního klíče</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE student (
+    uco INT PRIMARY KEY,
+    jmeno VARCHAR(10)
+);
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h2>Integritní omezení - realizace</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE student (
+    uco INT PRIMARY KEY,
+    rodne_cislo VARCHAR(11) NOT NULL UNIQUE,
+    jmeno VARCHAR(10),
+    vek INT CHECK (vek > 0)
+);
+            </code></pre></div>
+          </section>
+
+        </section>
+
+        <section>
+
+          <section>
+            <h2>Trocha nové teorie</h2>
+          </section>
+
+          <section>
+            <h2>Série</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE student (
+    id SERIAL PRIMARY KEY,
+    jmeno VARCHAR(32),
+    prijmeni VARCHAR(64)
+);
+            </code></pre></div>
+            <a href="http://www.postgresql.org/docs/9.3/static/datatype-numeric.html">http://www.postgresql.org/docs/9.1/static/datatype-numeric.html</a>
+            <p>
+              SERIAL - autoincrementing integer (1 to 2147483647)
+            </p>
+          </section>
+
+          <section>
+            <h2>Série - použití</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+INSERT INTO student
+    (jmeno, prijmeni) VALUES
+    ('Jan', 'Novák');
+            </code></pre></div>
+            <p>
+              Nepřidáváme ID, doplní se samo! Zkuste si SELECT.
+            </p>
+          </section>
+
+          <section>
+            <h2>Odkaz na cizí klíč</h2>
+            <p>
+              Pokud chceme kontrolovat cizí klíč (Primární klíč jiné tabulky - např. Autor - Kniha viz minulý ukol)
+            </p>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE autor (
+    id SERIAL PRIMARY KEY,
+    jmeno VARCHAR(32),
+    prijmeni VARCHAR(64)
+);
+            </code></pre></div>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE kniha (
+    isbn INT PRIMARY KEY,
+    nazev VARCHAR(64),
+    autor_id INT REFERENCES autor(id)
+);
+            </code></pre></div>
+            <a href="http://www.postgresql.org/docs/9.3/static/tutorial-fk.html">http://www.postgresql.org/docs/9.3/static/tutorial-fk.html</a>
+          </section>
+
+          <section>
+            <h2>Odkaz na cizí klíč - vložení záznamu</h2>
+            <div class='big'><pre><code data-trim contenteditable>
+INSERT INTO autor (jmeno, prijmeni) VALUES ('Jan','Novák');
+            </code></pre></div>
+            <p>
+              Zjistit ID vloženého autora:
+            </p>
+            <div class='big'><pre><code data-trim contenteditable>
+SELECT * FROM autor;
+            </code></pre></div>
+            <p>
+              Vložit záznam knihy
+            </p>
+            <div class='big'><pre><code data-trim contenteditable>
+INSERT INTO kniha VALUES (123456, 'Super kniha 1', 100);
+            </code></pre></div>
+
+          </section>
+
+          <section>
+            <h3>Přejmenování tabulky</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    RENAME TO nove_jmeno_tabulky;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h3>Pojmenování Primárního klíče</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE lide (
+    jmeno TEXT CONSTRAINT jedinecne_jmeno PRIMARY KEY,
+    vek INT
+);
+            </code></pre></div>
+            <h3>Pojmenování integritního omezení CHECK</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE lide (
+    jmeno TEXT,
+    vek INT CONSTRAINT uz_asi_po_smrti
+      CHECK( VEK < 150)
+);
+            </code></pre></div>
+            <h3>Pojmenování integritního omezení UNIQUE</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+CREATE TABLE lide (
+    jmeno TEXT CONSTRAINT jedinecne_jmeno UNIQUE,
+    vek INT
+);
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h3>Přidání pojmenovaného PK</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    ADD CONSTRAINT jmeno_PK PRIMARY KEY (jmeno_sloupce);
+            </code></pre></div>
+            <h3>Přidání pojmenovaného omezení UNIQUE</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    ADD CONSTRAINT jmeno_omezeni UNIQUE (jmeno_sloupce);
+            </code></pre></div>
+            <h3>Přidání pojmenovaného omezení CHECK</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    ADD CONSTRAINT jmeno_omezeni CHECK (podmínka);
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h3>Odstranění pojmenovaného omezení</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    DROP CONSTRAINT jmeno_omezeni;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h3>Přidání omezení NOT NULL</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    ALTER COLUMN jmeno_sloupce SET NOT NULL;
+            </code></pre></div>
+            <h3>Odstranění omezení NOT NULL</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE jmeno_tabulky
+    ALTER COLUMN jmeno_sloupce DROP NOT NULL;
+            </code></pre></div>
+          </section>
+
+          <section>
+            <h3>Změna datového typu sloupce</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE nazev_tabulky
+    ALTER COLUMN nazev_sloupce TYPE novy_datovy_typ;
+            </code></pre></div>
+            <h3>Přejmenování sloupce</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE nazev_tabulky
+    RENAME COLUMN nazev_sloupce TO novy_nazev_sloupce;
+            </code></pre></div>
+            <h3>Odstranění sloupce</h3>
+            <div class='big'><pre><code data-trim contenteditable>
+ALTER TABLE nazev_tabulky
+    DROP COLUMN nazev_sloupce;
+            </code></pre></div>
+          </section>
+
+        </section>
+
+        <section>
+
+          <section>
+            <h2>DIY - Do It Yourself</h2>
+          </section>
+
+          <section>
+            <h3>Pro vypracování následujících úkolů používejte výhraně příkazů SQL</h3>
+          </section>
+
+          <section>
+            <h2>ÚKOL 1</h2>
+            <h3>Vytvořte tabulku pro údaje o městech s následujícími atributy</h3>
+            <ul>
+              <li>název</li>
+              <li>NUTS5 (LAU2) kód</li>
+              <li>počet obyvatel</li>
+              <li>rozloha</li>
+              <li>zda se jedná o hlavní město</li>
+              <li>nejnižší nadm. výška</li>
+              <li>nejvyšší nadm. výška</li>
+            </ul>
+            <hr>
+            <h3>Do tabulky vložte alepoň 3 města</h3>
+          </section>
+
+          <section>
+            <h2>ÚKOL 2</h2>
+            <h3>Upravte tabulku z úkolu 1.</h3>
+            <ul>
+              <li>Přidejte omezení UNIQUE na název města</li>
+              <li>Přidejte omezení NOT NULL na NUTS5 kód</li>
+              <li>Přidejte omezení CHECK na počet obyvatel a rozlohu tak, aby bylo nutné zadat kladné číslo</li>
+              <li>Z tabulky smažte právě jedno město podle NUTS5 kódu</li>
+              <li>Do tabulky vložte další 3 města</li>
+              <li>Upravte název jednoho města pomocí příkazu UPDATE</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>ÚKOL 3</h2>
+            <h3>Upravte tabulku z úkolu 2.</h3>
+            <ul>
+              <li>Přidejte nový sloupec ICOB (kód obce dle ČSÚ) </li>
+              <li>Přidejte Primární klíč jako novou podmínku</li>
+              <li>Vložte nové město</li>
+              <li>Přejmenujte tabulku na 'sidla_body'</li>
+              <li>Smažte tabulku včetně jejího obsahu</li>
+            </ul>
+          </section>
+
+        </section>
+
+        <section>
+            <h1>Děkuji za pozornost</h1>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="/lib/js/head.min.js"></script>
+    <script src="/js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in //css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '../plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '../plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+          //{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
