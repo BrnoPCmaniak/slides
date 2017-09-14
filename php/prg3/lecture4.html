@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Lecture 4 - Vývojové diagramy</title>
+
+    <meta name="description" content="PRG 3. ročník">
+    <meta name="author" content="Jan Zagata">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="../css/bootstrap.dark.min.css" id="theme">
+    <link rel="stylesheet" href="../css/reveal.min.css">
+    <link rel="stylesheet" href="../css/theme/darkless.css" id="theme">
+    <link rel="stylesheet" href="../css/reveal.custom.css">
+
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="../lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write('<link rel="stylesheet" href="../css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+
+<body>
+
+<div class="reveal">
+
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+
+        <section>
+            <h1>Vývojové diagramy</h1>
+            <h3>Tak znova...</h3>
+        </section>
+
+        <section>
+            <section>
+                <h2>Obecná pravidla</h2>
+                <ul>
+                    <li>Kreslí se z vrchu dolů.</li>
+                    <li>Jednotlivé bloky jsou spojené šipkami.</li>
+                    <li>Šipka může vycházet pouze z bloku.</li>
+                    <li>Čáry jsou pravoúhlé.</li>
+                    <li>Čáry se nekříží.</li>
+                    <li>Diagram MUSÍ BÝT PŘEHLEDNÝ!</li>
+                </ul>
+                <br/>
+                <br/>
+                <span >http://draw.io</span>
+            </section>
+            <section>
+                <h2>Začátek a konec</h2>
+                <img src="./img/lecture4/start_end.png" />
+                <ul>
+                    <li>Obojí je elipsa.</li>
+                    <li>Mají pouze jeden vstup/výstup.</li>
+                    <li>Začínají a končí algoritmus.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Vstup a výstup</h2>
+                <img src="./img/lecture4/in_out.png" />
+                <ul>
+                    <li>Obojí je kosodélník.</li>
+                    <li>Mají pouze jeden vstup a výstup.</li>
+                    <li>Vždy musí obsahovat prováděnou operaci (načti/vypiš).</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Podprogram a krok algoritmu</h2>
+                <img src="./img/lecture4/processes.png" />
+                <br />
+                <ul>
+                    <li>Oba jsou obdélníky.</li>
+                    <li>Mají pouze jeden vstup a výstup.</li>
+                    <li>V obou případech můžu nastavovat proměnné.</li>
+                    <li>Krok algoritmu může obsahovat matematické operace, případně příkazy. Podprogram vždy odkazuje na jiný vývojový diagram.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Cyklus a podmínka</h2>
+                <img src="./img/lecture4/cycle_condition.png" />
+                <br />
+                <ul>
+                    <li><strong>Cyklus</strong> má 2 vstupy a 2 výstupy.</li>
+                    <li>Výstup po přerušení cyklu se kreslí směrem do boku.</li>
+                    <li>Výstup pro opakování cyklu se kreslí směrem dolů.</li>
+                    <li><strong>Podmínka</strong> má 1 vstup a 2 výstupy.</li>
+                    <li>Na výstupech podmínky musí být zaznačeno zdali je výstup kladný nebo záporný.</li>
+                </ul>
+
+            </section>
+
+            <section>
+                <img src="./img/lecture4/diagram.svg" width="100%">
+            </section>
+
+
+        </section>
+
+        <section>
+
+            <section>
+                <h2>Úkoly - cykly</h2>
+                <ul>
+                    <li>výpočet násobení pomocí sčítání</li>
+                    <li>výpočet faktoriálu</li>
+                    <li>zjisti kolik je slov ve větě</li>
+                    <li>Až pojedu na severní pól vezmu si ...</li>
+                    <li>Když jsem já sloužil</li>
+                </ul>
+
+
+            </section>
+        </section>
+
+    </div>
+
+</div>
+<img src="../prg4/img/inukshuk.svg" style="display: block; position: fixed; left: 5%; bottom: 5%; height: 15%;">
+
+<script src="../lib/js/head.min.js"></script>
+<script src="../js/reveal.min.js"></script>
+
+<script>
+
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+
+    theme: Reveal.getQueryHash().theme, // available themes are in //css/theme
+    transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+    // Optional libraries used to extend on reveal.js
+    dependencies: [
+      {
+        src: '../lib/js/classList.js', condition: function () {
+        return !document.body.classList;
+      }
+      },
+      {
+        src: '../plugin/markdown/showdown.js', condition: function () {
+        return !!document.querySelector('[data-markdown]');
+      }
+      },
+      {
+        src: '../plugin/markdown/markdown.js', condition: function () {
+        return !!document.querySelector('[data-markdown]');
+      }
+      },
+      {
+        src: '../plugin/highlight/highlight.js', async: true, callback: function () {
+        hljs.initHighlightingOnLoad();
+      }
+      },
+      {
+        src: '../plugin/zoom-js/zoom.js', async: true, condition: function () {
+        return !!document.body.classList;
+      }
+      },
+      {
+        src: '../plugin/notes/notes.js', async: true, condition: function () {
+        return !!document.body.classList;
+      }
+      }
+      //{ src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+    ]
+  });
+
+</script>
+
+</body>
+</html>
