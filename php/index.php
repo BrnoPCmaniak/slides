@@ -25,5 +25,6 @@ include('../libs/menu.php');
 
     </div> <!-- /container -->
     <?php echo render_js(); ?>
+    <?php echo render_footer(); ?>
   </body>
 </html>
