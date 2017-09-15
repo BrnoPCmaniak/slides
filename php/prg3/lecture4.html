@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
 
-    <title>Lecture 2 - prostředí</title>
+    <title>Lecture 4 - Vývojové diagramy</title>
 
     <meta name="description" content="PRG 3. ročník">
     <meta name="author" content="Jan Zagata">
@@ -33,6 +33,7 @@
     <![endif]-->
 </head>
 
+
 <body>
 
 <div class="reveal">
@@ -41,113 +42,92 @@
     <div class="slides">
 
         <section>
-            <h1>AlgOps</h1>
-            <h3>Algoritmizace && Operations</h3>
-        </section>
-
-        <section>
-            <img src="img/editors.png">
+            <h1>Vývojové diagramy</h1>
+            <h3>Tak znova...</h3>
         </section>
 
         <section>
             <section>
-                <h2>Algoritmizace</h2>
-            </section>
-
-            <section>
-                <h2>Co je to algoritmus?</h2>
-                <ul class="fragment" data-fragment-index="0">
-                    <li>jasný postup řešení problému</li>
-                    <li class="fragment" data-fragment-index="1">
-                        Musí být:
-                        <ul>
-                            <li class="fragment" data-fragment-index="2"><strong>konečný</strong> (finitní) - skončí v daném počtu kroků</li>
-                            <li class="fragment" data-fragment-index="3"><strong>obecný</strong> (univerzální) - neřeší jenom jeden problém ale celou třídu</li>
-                            <li class="fragment" data-fragment-index="4"><strong>jasný</strong> (deterministický) - každý krok musí být jasně definován</li>
-                            <li class="fragment" data-fragment-index="5"><strong>musí mít výstup</strong> (resultativní)</li>
-                            <li class="fragment" data-fragment-index="6"><strong>elementární</strong> - každý krok musí být jednoduchý</li>
-                        </ul>
-                    </li>
-                </ul>
-            </section>
-
-            <section>
-                <h2>Typy algoritmů</h2>
+                <h2>Obecná pravidla</h2>
                 <ul>
-                    <li class="fragment" data-fragment-index="0">"Rozděl a panuj"</li>
-                    <li class="fragment" data-fragment-index="0">Hladové algoritmy</li>
-                </ul>
-            </section>
-
-            <section>
-                <h2>Složitost</h2>
-                <ul>
-                    <li>vyjadřuje efektivitu algoritmu</li>
-                    <li>počet kroků které jsou potřeba pro daný počet vstupů</li>
+                    <li>Kreslí se z vrchu dolů.</li>
+                    <li>Jednotlivé bloky jsou spojené šipkami.</li>
+                    <li>Šipka může vycházet pouze z bloku.</li>
+                    <li>Čáry jsou pravoúhlé.</li>
+                    <li>Čáry se nekříží.</li>
+                    <li>Diagram MUSÍ BÝT PŘEHLEDNÝ!</li>
                 </ul>
                 <br/>
-                Algoritmus může nabývat různých tříd složitosti např. <code>O(N)</code>
+                <br/>
+                <span >http://draw.io</span>
+            </section>
+            <section>
+                <h2>Začátek a konec</h2>
+                <img src="./img/lecture4/start_end.png" />
+                <ul>
+                    <li>Obojí je elipsa.</li>
+                    <li>Mají pouze jeden vstup/výstup.</li>
+                    <li>Začínají a končí algoritmus.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Vstup a výstup</h2>
+                <img src="./img/lecture4/in_out.png" />
+                <ul>
+                    <li>Obojí je kosodélník.</li>
+                    <li>Mají pouze jeden vstup a výstup.</li>
+                    <li>Vždy musí obsahovat prováděnou operaci (načti/vypiš).</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Podprogram a krok algoritmu</h2>
+                <img src="./img/lecture4/processes.png" />
                 <br />
+                <ul>
+                    <li>Oba jsou obdélníky.</li>
+                    <li>Mají pouze jeden vstup a výstup.</li>
+                    <li>V obou případech můžu nastavovat proměnné.</li>
+                    <li>Krok algoritmu může obsahovat matematické operace, případně příkazy. Podprogram vždy odkazuje na jiný vývojový diagram.</li>
+                </ul>
+            </section>
 
-                <img src="img/lecture2/complexity.png" style="background-color: white;"/>
+            <section>
+                <h2>Cyklus a podmínka</h2>
+                <img src="./img/lecture4/cycle_condition.png" />
+                <br />
+                <ul>
+                    <li><strong>Cyklus</strong> má 2 vstupy a 2 výstupy.</li>
+                    <li>Výstup po přerušení cyklu se kreslí směrem do boku.</li>
+                    <li>Výstup pro opakování cyklu se kreslí směrem dolů.</li>
+                    <li><strong>Podmínka</strong> má 1 vstup a 2 výstupy.</li>
+                    <li>Na výstupech podmínky musí být zaznačeno zdali je výstup kladný nebo záporný.</li>
+                </ul>
 
             </section>
 
             <section>
-                <img src="img/lecture2/flowchart1.png" />
+                <img src="./img/lecture4/diagram.svg" width="100%">
             </section>
 
-            <section>
-                <img src="img/lecture2/flowchart1a.png" />
-                <br/>
-                <span class="fragment" data-fragment-index="0">TOTO ALGORITMUS NENÍ!!!</span>
-            </section>
-
-            <section>
-                <img src="img/lecture2/flowchart2.png" />
-            </section>
-
-            <section>
-                <img src="img/lecture2/flowchart3.png" />
-            </section>
 
         </section>
 
         <section>
-            <section>
-                <h2>Operations</h2>
-            </section>
 
             <section>
+                <h2>Úkoly - cykly</h2>
+                <ul>
+                    <li>výpočet násobení pomocí sčítání</li>
+                    <li>výpočet faktoriálu</li>
+                    <li>zjisti kolik je slov ve větě</li>
+                    <li>Až pojedu na severní pól vezmu si ...</li>
+                    <li>Když jsem já sloužil</li>
+                </ul>
 
-                <code class="bash hljs">
-                    $ git clone https://github.com/scotch-io/scotch-box.git
-                    <br />
-                    $ vagrant up
-                </code>
 
             </section>
-
-            <section>
-                <code class="bash hljs">
-                    drwxrwxr-x 5 refuse refuse .<br/>
-                    drwxrwxr-x 3 refuse refuse ..<br/>
-                    drwxrwxr-x 8 refuse refuse .git<br/>
-                    -rw-rw-r-- 1 refuse refuse .gitignore<br/>
-                    drwxrwxr-x 2 refuse refuse public<br/>
-                    -rw-rw-r-- 1 refuse refuse README.md<br/>
-                    drwxrwxr-x 3 refuse refuse .vagrant<br/>
-                    -rw-rw-r-- 1 refuse refuse Vagrantfile<br/>
-                </code>
-            </section>
-
-            <section>
-                <code class="ruby hljs">
-                    config.vm.network "private_network", ip: "192.168.33.10"
-                </code>
-            </section>
-
-
         </section>
 
     </div>

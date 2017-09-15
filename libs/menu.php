@@ -1,66 +1,44 @@
 <?php
 
-
 $MENU = array(
     'prg3' => array(
         'name' => 'PROG - 3',
         'dir' => 'prg3',
-        'desc_head' => 'Basics of PHP and SQL.',
-        'desc_text' => 'Slides for lectures <b>PROG - 3</b>',
-        'links' => array(
-            'lecture1' => 'Lecture 1',
-            'lecture2' => 'Lecture 2',
-
-        ),
-    ),
+        'desc_head' => 'PROG 3.A',
+        'desc_text' => 'Prezentace pro 3.A'),
     'prg4' => array(
         'name' => 'PROG - 4',
         'dir' => 'prg4',
-        'desc_head' => 'Basics of PHP and SQL.',
-        'desc_text' => 'Slides for lectures <b>PROG - 4</b>',
-        'links' => array(
-            'lecture1' => 'Lecture 1',
-
-        ),
-    ),
+        'desc_head' => 'PROG 4.A',
+        'desc_text' => 'Prezentace pro 4.A'),
     'sql' => array(
         'name' => 'SQL Basics',
         'dir' => 'sql',
-        'desc_head' => 'Basics of SQL language.',
-        'desc_text' => 'Slides for lectures <b>Z3104 - Geodatabáze</b>',
-        'links' => array(
-            'lecture1' => 'Lecture 1',
-            'lecture2' => 'Lecture 2',
-            'lecture3' => 'Lecture 3',
-            'lecture4' => 'Lecture 4',
-            'lecture5' => 'Lecture 5',
-            'lecture6' => 'Lecture 6',
-            'lecture7' => 'Lecture 7',
-            'lecture8' => 'Lecture 8',
-            'lecture9' => 'Lecture 9',
-            'lecture10' => 'Lecture 10',
-        ),
-    ),
+        'desc_head' => 'SQL',
+        'desc_text' => 'SQL Basics')
 );
 
 /* HERE BE DRAGONS AND SHIT */
 
-function get_head($page)
-{
-    global $MENU;
-    return $MENU[$page]['desc_head'];
-}
+function get_formated_file_list($dir_name) {
+    $retval = "";
 
-function get_text($page)
-{
-    global $MENU;
-    return $MENU[$page]['desc_text'];
-}
+    $files = scandir('./'.$dir_name);
+    natsort($files);
 
-function get_dir($page)
-{
-    global $MENU;
-    return $MENU[$page]['dir'];
+    if (count($files) > 2) {
+        foreach ($files as $file) {
+            if (preg_match("/.*.html/", $file)){
+                $file_text = file_get_contents($dir_name.'/'.$file, 'r');
+                preg_match("/<title>.*</", $file_text, $title);
+
+                $retval .= '<li><a href="./' . $dir_name . '/' . $file . '" >' . strip_tags($title[0]). '</a></li>';
+            }
+
+        }
+    }
+
+    return $retval;
 }
 
 function render_single_item($menu_item, $active)
@@ -69,14 +47,13 @@ function render_single_item($menu_item, $active)
     $retval .= '<li class="dropdown ' . $active . '">';
     $retval .= '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' . $menu_item['name'] . ' <span class="caret"></span></a>';
     $retval .= '<ul class="dropdown-menu" role="menu">';
-    $retval .= '<li><a href="/' . $menu_item['dir'] . '">Info</a></li>';
+    $retval .= '<li><a href="./' . $menu_item['dir'] . '">Info</a></li>';
+    $retval .= '<li class="divider"></li>';
 
-    if (count($menu_item['links'])) {
-        $retval .= '<li class="divider"></li>';
-        foreach ($menu_item['links'] as $key => $value) {
-            $retval .= '<li><a href="/' . $menu_item['dir'] . '/' . $key . '.html">' . $value . '</a></li>';
-        }
-    }
+
+
+    $retval .= get_formated_file_list($menu_item['dir']);
+
     $retval .= '</ul>';
     $retval .= '</li>';
     return $retval;
@@ -114,7 +91,6 @@ function render_menu($page)
     return $retval;
 }
 
-
 function render_jumbotron($name)
 {
     global $MENU;
@@ -122,6 +98,8 @@ function render_jumbotron($name)
     $retval .= '<div class="jumbotron">';
     $retval .= '<h1>' . $MENU[$name]['desc_head'] . '</h1>';
     $retval .= '<p class="leading">' . $MENU[$name]['desc_text'] . '</p>';
+    $retval .= '<ul>';
+    $retval .=  get_formated_file_list('../'.$MENU[$name]['dir']);
     $retval .= '</div>';
     return $retval;
 }
@@ -130,15 +108,15 @@ function render_js()
 {
     $retval = '';
     $retval .= '<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>';
-    $retval .= '<script src="/js/bootstrap.min.js"></script>';
+    $retval .= '<script src="./js/bootstrap.min.js"></script>';
     return $retval;
 }
 
 function render_css()
 {
     $retval = '';
-    $retval .= '<link href="/css/bootstrap.dark.min.css" rel="stylesheet">';
-    $retval .= '<link href="/css/bootstrap.theme.css" rel="stylesheet">';
+    $retval .= '<link href="./css/bootstrap.dark.min.css" rel="stylesheet">';
+    $retval .= '<link href="./css/bootstrap.theme.css" rel="stylesheet">';
 
     $retval .= '
   <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -157,6 +135,17 @@ function render_meta()
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Pavel Grochal">';
+
+    return $retval;
+}
+
+function render_footer(){
+    $retval = "";
+    $retval .= '<div class="pull-right navbar-fixed-bottom">
+        <div class="pull-right" style="margin: 5px">
+        Credits to: Pavel Grochal
+    </div>
+    </div>';
 
     return $retval;
 }
